@@ -647,7 +647,7 @@ const totalOutput = programmerOutput
 ```
 **[⬆ 상단으로](#목차)**
 
-### conditionals 캡슐화 하세요
+### 조건문을 캡슐화 하세요
 
 **Bad:**
 ```javascript
@@ -668,7 +668,7 @@ if (shouldShowSpinner(fsmInstance, listNodeInstance)) {
 ```
 **[⬆ 상단으로](#목차)**
 
-### Negative conditionals를 피하세요
+### 부정적인 조건문을 피하세요
 
 **Bad:**
 ```javascript
