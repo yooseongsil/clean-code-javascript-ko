@@ -5,7 +5,11 @@
 만약 수정이 필요한 내용이 있다면 [Issue](https://github.com/qkraudghgh/clean-code-javascript-ko/issues)나 
 [Pull Request](https://github.com/qkraudghgh/clean-code-javascript-ko/pulls)에 글을 남겨주세요.
 
-[원문](https://github.com/ryanmcdermott/clean-code-javascript)은 이 링크를 이용해주세요.
+
+## LICENSE
+- 원문의 저작권은 `MIT LICENSE` 이며 [@ryanmcdermott](https://github.com/ryanmcdermott)에게 저작권이 있습니다.
+  - [원문](https://github.com/ryanmcdermott/clean-code-javascript)은 이 링크를 이용해주세요.
+- 번역본의 저작권은 `MIT LICENSE` 이며 [@qkraudghgh](https://github.com/qkraudghgh)에게 저작권이 있습니다.
 
 
 ## 목차
