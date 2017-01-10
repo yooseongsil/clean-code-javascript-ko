@@ -4,13 +4,13 @@
   1. [소개(Introduction)](#소개(Introduction))
   2. [변수(Variables)](#변수(Variables))
   3. [함수(Functions)](#함수(Functions))
-  4. [객체와 자료구조(Objects and Data Structures)](#객체와-자료구조)
-  5. [클래스(Classes)](#클래스)
-  6. [테스트(Testing)](#테스트)
-  7. [동시성(Concurrency)](#동시성)
-  8. [에러 처리(Error Handling)](#에러-처리)
-  9. [포멧팅(Formatting)](#포멧팅)
-  10. [주석(Comments)](#주석)
+  4. [객체와 자료구조(Objects and Data Structures)](#객체와-자료구조(Objects-and-Data-Structures))
+  5. [클래스(Classes)](#클래스(Classes))
+  6. [테스트(Testing)](#테스트(Testing))
+  7. [동시성(Concurrency)](#동시성(Concurrency))
+  8. [에러 처리(Error Handling)](#에러-처리(Error-Handling))
+  9. [포멧팅(Formatting)](#포멧팅(Formatting))
+  10. [주석(Comments)](#주석(Comments))
   
 ## 소개(Introduction)
 ![Humorous image of software quality estimation as a count of how many expletives
@@ -943,7 +943,7 @@ console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
 
 ## **클래스(Classes)**
 ### 단일 책임 원칙 (SRP)
-Clean Code에서 말하길 "클래스를 수정할때는 2개 이상의 이유가 있으면 안됩니다." 
+Clean Code에서 말하길 "클래스를 수정 할 때는 수정 해야하는 이유가 2개 이상 있으면 안됩니다." 
 이것은 하나의 클래스에 많은 기능을 쑤셔넣는 것이나 다름 없습니다. 마치 비행기를 탈때 가방을 1개만 가지고 탈 수
 있을 때 처럼 말이죠. 이 문제는 당신의 클래스가 개념적으로 응집되어 있지 않다는 것이고, 클래스를 바꿔야할 많은 이유가됩니다.
 클래스를 수정하는데 들이는 시간을 줄이는 것은 중요합니다. 왜냐면 하나의 클래스에 너무 많은 기능들이 있고 
