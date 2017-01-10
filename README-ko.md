@@ -1,16 +1,16 @@
 # clean-code-javascript
 
 ## 목차
-  1. [소개(Introduction)](#소개(Introduction))
-  2. [변수(Variables)](#변수(Variables))
-  3. [함수(Functions)](#함수(Functions))
-  4. [객체와 자료구조(Objects and Data Structures)](#객체와-자료구조(Objects-and-Data-Structures))
-  5. [클래스(Classes)](#클래스(Classes))
-  6. [테스트(Testing)](#테스트(Testing))
-  7. [동시성(Concurrency)](#동시성(Concurrency))
-  8. [에러 처리(Error Handling)](#에러-처리(Error-Handling))
-  9. [포멧팅(Formatting)](#포멧팅(Formatting))
-  10. [주석(Comments)](#주석(Comments))
+  1. [소개(Introduction)](#소개introduction)
+  2. [변수(Variables)](#변수variables)
+  3. [함수(Functions)](#함수functions)
+  4. [객체와 자료구조(Objects and Data Structures)](#객체와-자료구조objects-and-data-structures)
+  5. [클래스(Classes)](#클래스classes)
+  6. [테스트(Testing)](#테스트testing)
+  7. [동시성(Concurrency)](#동시성concurrency)
+  8. [에러 처리(Error Handling)](#에러-처리error-Handling)
+  9. [포멧팅(Formatting)](#포멧팅formatting)
+  10. [주석(Comments)](#주석comments)
   
 ## 소개(Introduction)
 ![Humorous image of software quality estimation as a count of how many expletives
