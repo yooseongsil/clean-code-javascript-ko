@@ -1763,13 +1763,13 @@ getdata()
   functionThatMightThrow(data);
 })
 .catch(error => {
-  // One option (more noisy than console.log):
+  // 첫번째 방법은 console.error를 이용하는 것입니다. 이건 console.log보다 조금 더 알아채기 쉽습니다.
   console.error(error);
-  // Another option:
+  // 다른 방법은 유저에게 알리는 방법입니다.
   notifyUserOfError(error);
-  // Another option:
+  // 또 다른 방법은 서비스 자체에 에러를 기록하는 방법입니다.
   reportErrorToService(error);
-  // OR do all three!
+  // 혹은 그 어떤 방법이 될 수 있습니다.
 });
 ```
 
@@ -1996,7 +1996,7 @@ function combine(a, b) {
 **안좋은 예:**
 ```javascript
 ////////////////////////////////////////////////////////////////////////////////
-// Scope Model Instantiation
+// 스코프 모델 정의
 ////////////////////////////////////////////////////////////////////////////////
 const $scope.model = {
   menu: 'foo',
@@ -2004,7 +2004,7 @@ const $scope.model = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Action setup
+// actions 설정
 ////////////////////////////////////////////////////////////////////////////////
 const actions = function() {
   // ...
