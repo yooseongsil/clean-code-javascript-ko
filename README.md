@@ -1,5 +1,13 @@
 # clean-code-javascript
 
+## 읽기에 앞서
+오역 및 맞춤법 오타가 있을 수 있습니다. 또한 이해하기 힘든 부분은 의역했습니다.
+만약 수정이 필요한 내용이 있다면 [Issue](https://github.com/qkraudghgh/clean-code-javascript-ko/issues)나 
+[Pull Request](https://github.com/qkraudghgh/clean-code-javascript-ko/pulls)에 글을 남겨주세요.
+
+[원문](https://github.com/ryanmcdermott/clean-code-javascript)은 이 링크를 이용해주세요.
+
+
 ## 목차
   1. [소개(Introduction)](#소개introduction)
   2. [변수(Variables)](#변수variables)
