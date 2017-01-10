@@ -694,7 +694,7 @@ if (isDOMNodePresent(node)) {
 **[⬆ 상단으로](#목차)**
 
 ### 조건문 작성을 피하세요
-조건문 작성을 피하라는 것은 매우 불가능한 일로 보입니다. 이 얘기를 처음 듣는 사람들은 대부분 "`If문` 없이 어떻게 코드를 짜나요?"라고 말하죠. 
+조건문 작성을 피하라는 것은 매우 불가능한 일로 보입니다. 이 얘기를 처음 듣는 사람들은 대부분 "`If문` 없이 어떻게 코드를 짜나요?"라고 말합니다. 
 하지만 다형성을 이용한다면 동일한 작업을 수행할 수 있습니다. 두번째 질문은 대부분 "물론 그렇게 짤 수 있겠지만 왜 그렇게 해야하나요?"라고 묻습니다. 
 그에대한 대답은 앞서 우리가 공부했던 clean code 컨셉에 있습니다. 함수는 단 하나의 일만 수행하여야 합니다. 
 당신이 함수나 클래스에 `if문`을 쓴다면 그것은 그 함수나 클래스가 한가지 이상의 일을 수행하고 있다고 말하는 것과 같습니다. 
@@ -852,3 +852,702 @@ inventoryTracker('apples', req, 'www.inventory-awesome.io');
 ```
 **[⬆ 상단으로](#목차)**
 
+## **객체와 자료구조(Objects and Data Structures)**
+### getter와 setter를 사용하세요
+Javascript는 인터페이스와 타입을 가지고있지 않고 이러한 패턴을 적용하기가 힘듭니다.
+왜냐하면 `public`이나 `private`같은 키워드가 없기 때문이죠.
+그렇기 때문에 getter 및 setter를 사용하여 객체의 데이터에 접근하는 것은 객체의 속성을 찾는 것보다 훨씬 낫습니다.
+왜냐고 물으신다면 비공식적인 이유들이 몇가지 있습니다.
+
+1. 객체의 속성을 얻는 것 이상의 많은 것을 하고싶을 때 당신은 코드에서 모든 접근자를 찾거나 건드릴 필요가 없습니다.
+2. `set`할때 validation을 추가하는 것이 쉽습니다.
+3. 내부 표현식을 캡슐화 할 수 있습니다.
+4. `getting`과 `setting`할 때 로그를 찾거나 에러처리를 하기 쉽습니다.
+5. 클래스를 상속한다면 기본 기능또한 재정의할 수 있습니다.
+6. 서버에서 객체 속성을 받아올 때 lazy load 할 수 있습니다.
+
+**안좋은 예:**
+```javascript
+class BankAccount {
+  constructor() {
+	   this.balance = 1000;
+  }
+}
+
+const bankAccount = new BankAccount();
+
+// 신발을 구매할때..
+bankAccount.balance = bankAccount.balance - 100;
+```
+
+**좋은 예:**
+```javascript
+class BankAccount {
+  constructor() {
+	   this.balance = 1000;
+  }
+
+  // getter/setter를 정의할 때 `get`, `set` 같은 접두사가 필요하지 않습니다.
+  withdraw(amount) {
+  	if (verifyAmountCanBeDeducted(amount)) {
+  	  this.balance -= amount;
+  	}
+  }
+}
+
+const bankAccount = new BankAccount();
+
+// 신발을 구매할때...
+bankAccount.withdraw(100);
+```
+**[⬆ 상단으로](#목차)**
+
+### 객체에 비공개 멤버를 만드세요
+클로져를 이용하면 가능합니다. (ES5 이하에서도)
+
+**안좋은 예:**
+```javascript
+
+const Employee = function(name) {
+  this.name = name;
+}
+
+Employee.prototype.getName = function() {
+  return this.name;
+}
+
+const employee = new Employee('John Doe');
+console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+delete employee.name;
+console.log('Employee name: ' + employee.getName()); // Employee name: undefined
+```
+
+**좋은 예:**
+```javascript
+const Employee = (function() {
+  function Employee(name) {
+    this.getName = function() {
+      return name;
+    };
+  }
+
+  return Employee;
+}());
+
+const employee = new Employee('John Doe');
+console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+delete employee.name;
+console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+```
+**[⬆ 상단으로](#목차)**
+
+## **클래스(Classes)**
+### 단일 책임 원칙 (SRP)
+Clean Code에서 말하길 "클래스를 수정할때는 2개 이상의 이유가 있으면 안됩니다." 
+이것은 하나의 클래스에 많은 기능을 쑤셔넣는 것이나 다름 없습니다. 마치 비행기를 탈때 가방을 1개만 가지고 탈 수
+있을 때 처럼 말이죠. 이 문제는 당신의 클래스가 개념적으로 응집되어 있지 않다는 것이고, 클래스를 바꿔야할 많은 이유가됩니다.
+클래스를 수정하는데 들이는 시간을 줄이는 것은 중요합니다. 왜냐면 하나의 클래스에 너무 많은 기능들이 있고 
+당신이 이 작은 기능들을 수정 할때 이 코드가 다른 모듈들에 어떠한 영향을 끼치는지 이해하기 어려울 수 있기 때문입니다.
+
+**안좋은 예:**
+```javascript
+class UserSettings {
+  constructor(user) {
+    this.user = user;
+  }
+
+  changeSettings(settings) {
+    if (this.verifyCredentials(user)) {
+      // ...
+    }
+  }
+
+  verifyCredentials(user) {
+    // ...
+  }
+}
+```
+
+**좋은 예:**
+```javascript
+class UserAuth {
+  constructor(user) {
+    this.user = user;
+  }
+
+  verifyCredentials() {
+    // ...
+  }
+}
+
+
+class UserSettings {
+  constructor(user) {
+    this.user = user;
+    this.auth = new UserAuth(user)
+  }
+
+  changeSettings(settings) {
+    if (this.auth.verifyCredentials()) {
+      // ...
+    }
+  }
+}
+```
+**[⬆ 상단으로](#목차)**
+
+### 개방/폐쇄 원칙 (OCP)
+Bertrand Meyer에 말에 의하면 "소프트웨어 개체(클래스, 모듈, 함수 등)은 확장을 위해 개방적이어야 하며 수정시엔
+폐쇄적이어야 합니다." 이것에 의미는 무엇일까요? 이 원리는 기본적으로 사용자가`.js` 소스 코드 파일을 열어 수동으로 조작하지 않고도 
+모듈의 기능을 확장하도록 허용해야한다고 말합니다.
+
+**안좋은 예:**
+```javascript
+class AjaxRequester {
+  constructor() {
+    // DELETE 같은 다른 HTTP METHOD를 추가하려면 어떻게 해야 할까요?
+    // 우선 이 파일을 열어 배열에 직접 'DELETE'를 추가해야 합니다.
+    this.HTTP_METHODS = ['POST', 'PUT', 'GET'];
+  }
+
+  get(url) {
+    // ...
+  }
+
+}
+```
+
+**좋은 예:**
+```javascript
+class AjaxRequester {
+  constructor() {
+    this.HTTP_METHODS = ['POST', 'PUT', 'GET'];
+  }
+
+  get(url) {
+    // ...
+  }
+
+  addHTTPMethod(method) {
+    this.HTTP_METHODS.push(method);
+  }
+}
+```
+**[⬆ 상단으로](#목차)**
+
+### 리스코프 치환 원칙 (LSP)
+이것은 매우 간단하지만 강력한 원칙입니다. 리스코프 원칙이란 자료형 S가 자료형 T의 하위형이라면 
+필요한 프로그램의 속성(정확성, 수행하는 업무 등)의 변경 없이 자료형 T의 객체를 자료형 S의 객체로 
+교체(치환)할 수 있어야 한다는 원칙입니다.
+
+이 원칙을 예를 들어 설명하자면 당신이 부모 클래스와 자식 클래스를 가지고 있을 때 베이스 클래스와 하위 클래스를
+잘못된 결과 없이 서로 교환하여 사용할 수 있습니다. 여전히 이해가 안간다면 정사각형-직사각형 예제를 봅시다.
+수학적으로 정사각형은 직사각형이지만 상속을 통해 "is-a" 관계를 사용하여 모델링한다면 문제가 발생합니다.
+
+**안좋은 예:**
+```javascript
+class Rectangle {
+  constructor() {
+    this.width = 0;
+    this.height = 0;
+  }
+
+  setColor(color) {
+    // ...
+  }
+
+  render(area) {
+    // ...
+  }
+
+  setWidth(width) {
+    this.width = width;
+  }
+
+  setHeight(height) {
+    this.height = height;
+  }
+
+  getArea() {
+    return this.width * this.height;
+  }
+}
+
+class Square extends Rectangle {
+  constructor() {
+    super();
+  }
+
+  setWidth(width) {
+    this.width = width;
+    this.height = width;
+  }
+
+  setHeight(height) {
+    this.width = height;
+    this.height = height;
+  }
+}
+
+function renderLargeRectangles(rectangles) {
+  rectangles.forEach(rectangle => {
+    rectangle.setWidth(4);
+    rectangle.setHeight(5);
+    let area = rectangle.getArea(); // 정사각형일때 25를 리턴합니다. 하지만 20이어야 하는게 맞습니다.
+    rectangle.render(area);
+  })
+}
+
+let rectangles = [new Rectangle(), new Rectangle(), new Square()];
+renderLargeRectangles(rectangles);
+```
+
+**좋은 예:**
+```javascript
+class Shape {
+  constructor() {}
+
+  setColor(color) {
+    // ...
+  }
+
+  render(area) {
+    // ...
+  }
+}
+
+class Rectangle extends Shape {
+  constructor() {
+    super();
+    this.width = 0;
+    this.height = 0;
+  }
+
+  setWidth(width) {
+    this.width = width;
+  }
+
+  setHeight(height) {
+    this.height = height;
+  }
+
+  getArea() {
+    return this.width * this.height;
+  }
+}
+
+class Square extends Shape {
+  constructor() {
+    super();
+    this.length = 0;
+  }
+
+  setLength(length) {
+    this.length = length;
+  }
+
+  getArea() {
+    return this.length * this.length;
+  }
+}
+
+function renderLargeShapes(shapes) {
+  shapes.forEach(shape => {
+    switch (shape.constructor.name) {
+      case 'Square':
+        shape.setLength(5);
+      case 'Rectangle':
+        shape.setWidth(4);
+        shape.setHeight(5);
+    }
+
+    const area = shape.getArea();
+    shape.render(area);
+  })
+}
+
+const shapes = [new Rectangle(), new Rectangle(), new Square()];
+renderLargeShapes(shapes);
+```
+**[⬆ 상단으로](#목차)**
+
+### 인터페이스 분리 원칙 (ISP)
+Javascript는 인터페이스가 없기 때문에 다른 원칙들 처럼 딱 맞게 적용할 수는 없습니다.
+그러나, Javascript에 타입 시스템이 없다 하더라도 중요하고 관계있습니다.
+
+ISP에 의하면 "클라이언트는 사용하지 않는 인터페이스에 의존하도록 강요해서는 안됩니다."
+인터페이스는 덕 타이핑 때문에 Javascript에서는 암시적인 계약일 뿐입니다.
+
+Javascript에서 이것을 보여주는 가장 좋은 예는 방대한 양의 설정 객체가 필요한 클래스입니다.
+클라이언트가 방대한 양의 옵션을 설정하지 않는 것이 좋습니다. 왜냐하면 대부분의 경우 모든 설정이 필요하지 않기 때문입니다.
+설정을 선택적으로 할 수 있다면 무거운 인터페이스를 만드는 것을 방지할 수 있습니다.
+
+**안좋은 예:**
+```javascript
+class DOMTraverser {
+  constructor(settings) {
+    this.settings = settings;
+    this.setup();
+  }
+
+  setup() {
+    this.rootNode = this.settings.rootNode;
+    this.animationModule.setup();
+  }
+
+  traverse() {
+    // ...
+  }
+}
+
+const $ = new DOMTraverser({
+  rootNode: document.getElementsByTagName('body'),
+  animationModule: function() {} // 대부분의 경우 우리는 DOM을 탐색할 때 애니메이션이 필요하지 않습니다.
+  // ...
+});
+
+```
+
+**좋은 예:**
+```javascript
+class DOMTraverser {
+  constructor(settings) {
+    this.settings = settings;
+    this.options = settings.options;
+    this.setup();
+  }
+
+  setup() {
+    this.rootNode = this.settings.rootNode;
+    this.setupOptions();
+  }
+
+  setupOptions() {
+    if (this.options.animationModule) {
+      // ...
+    }
+  }
+
+  traverse() {
+    // ...
+  }
+}
+
+const $ = new DOMTraverser({
+  rootNode: document.getElementsByTagName('body'),
+  options: {
+    animationModule: function() {}
+  }
+});
+```
+**[⬆ 상단으로](#목차)**
+
+### 의존 관계 역전 원칙 (DIP)
+이 원칙은 두가지 중요한 요소를 가지고 있습니다.
+1. 상위 모듈은 하위 모듈에 종속되어서는 안됩니다. 둘 다 추상화에 의존해야 합니다.
+2. 추상화는 세부사항에 의존하지 않습니다. 세부사항은 추상화에 의해 달라져야 합니다.
+
+처음에는 이것을 이해하는데 어려울 수 있습니다. 하지만 만약 Angular.js로 작업해본적이 있다면
+의존성 주입(Dependency Injection) 형태로 이 원리를 구현한 것을 보았을 것입니다.
+DIP는 동일한 개념은 아니지만 상위 모듈이 하위 모듈의 세부사항을 알지 못하게 설정합니다.
+이는 의존성 주입을 통해 달성할 수 있습니다. 이것의 장점은 모듈간의 의존성을 감소시키는대 있습니다.
+모듈간의 의존성이 높을수록 코드를 리팩토링 하는데 어려워지고 이것은 나쁜 개발 패턴들중 하나입니다.
+
+앞에서 설명한 것처럼 JavaScript에는 인터페이스가 없으므로 추상화는 암시적으로 의존성을 갖습니다.
+이것이 의미하는 것은 객체/클래스가 다른 객체/클래스에 노출하는 속성이나 메소드를 말합니다.
+아래 예제에서 암시적인 계약은 `InventoryTracker`에대한 모든 요청 모듈이 `requestItems` 메소드를
+가질 것이라는 점입니다.
+
+**안좋은 예:**
+```javascript
+class InventoryTracker {
+  constructor(items) {
+    this.items = items;
+
+    // 안좋은 이유: 특정 요청 구현에 대한 의존성을 만들었습니다.
+    // requestItem은 요청 메소드에 의존해야합니다.
+    this.requester = new InventoryRequester();
+  }
+
+  requestItems() {
+    this.items.forEach(item => {
+      this.requester.requestItem(item);
+    });
+  }
+}
+
+class InventoryRequester {
+  constructor() {
+    this.REQ_METHODS = ['HTTP'];
+  }
+
+  requestItem(item) {
+    // ...
+  }
+}
+
+const inventoryTracker = new InventoryTracker(['apples', 'bananas']);
+inventoryTracker.requestItems();
+```
+
+**좋은 예:**
+```javascript
+class InventoryTracker {
+  constructor(items, requester) {
+    this.items = items;
+    this.requester = requester;
+  }
+
+  requestItems() {
+    this.items.forEach(item => {
+      this.requester.requestItem(item);
+    });
+  }
+}
+
+class InventoryRequesterV1 {
+  constructor() {
+    this.REQ_METHODS = ['HTTP'];
+  }
+
+  requestItem(item) {
+    // ...
+  }
+}
+
+class InventoryRequesterV2 {
+  constructor() {
+    this.REQ_METHODS = ['WS'];
+  }
+
+  requestItem(item) {
+    // ...
+  }
+}
+
+// By constructing our dependencies externally and injecting them, we can easily
+// substitute our request module for a fancy new one that uses WebSockets.
+const inventoryTracker = new InventoryTracker(['apples', 'bananas'], new InventoryRequesterV2());
+inventoryTracker.requestItems();
+```
+**[⬆ 상단으로](#목차)**
+
+### ES5의 함수보다 ES2015/ES6의 클래스를 사용하세요
+기존 ES5의 클래스에서 이해하기 쉬운 상속, 구성 및 메소드 정의를 얻는 것은 매우 어렵습니다.
+매번 그런것은 아니지만 상속이 필요한 경우라면 클래스를 사용하는 것이 좋습니다.
+하지만 당신이 크고 더 복잡한 객체가 필요한 경우가 아니라면 클래스보다 작은 함수를 사용하세요.
+
+**안좋은 예:**
+```javascript
+const Animal = function(age) {
+    if (!(this instanceof Animal)) {
+        throw new Error("Instantiate Animal with `new`");
+    }
+
+    this.age = age;
+};
+
+Animal.prototype.move = function() {};
+
+const Mammal = function(age, furColor) {
+    if (!(this instanceof Mammal)) {
+        throw new Error("Instantiate Mammal with `new`");
+    }
+
+    Animal.call(this, age);
+    this.furColor = furColor;
+};
+
+Mammal.prototype = Object.create(Animal.prototype);
+Mammal.prototype.constructor = Mammal;
+Mammal.prototype.liveBirth = function() {};
+
+const Human = function(age, furColor, languageSpoken) {
+    if (!(this instanceof Human)) {
+        throw new Error("Instantiate Human with `new`");
+    }
+
+    Mammal.call(this, age, furColor);
+    this.languageSpoken = languageSpoken;
+};
+
+Human.prototype = Object.create(Mammal.prototype);
+Human.prototype.constructor = Human;
+Human.prototype.speak = function() {};
+```
+
+**좋은 예:**
+```javascript
+class Animal {
+    constructor(age) {
+        this.age = age;
+    }
+
+    move() {}
+}
+
+class Mammal extends Animal {
+    constructor(age, furColor) {
+        super(age);
+        this.furColor = furColor;
+    }
+
+    liveBirth() {}
+}
+
+class Human extends Mammal {
+    constructor(age, furColor, languageSpoken) {
+        super(age, furColor);
+        this.languageSpoken = languageSpoken;
+    }
+
+    speak() {}
+}
+```
+**[⬆ 상단으로](#목차)**
+
+### 메소드 체이닝을 사용하세요
+이 원칙은 `Clean Code` 책에는 위배되는 것이지만 우리는 이번만큼은 이 원칙을 따라야합니다.
+메소드 체이닝은 항상 더럽고 [Law of Demeter](https://en.wikipedia.org/wiki/Law_of_Demeter).
+을 위반한다고 항상 논의되어왔습니다. 물론 맞는 말이지만 Javascript에서 메소드 체이닝은 매우 유용한 패턴이며
+jQuery나 Lodash같은 많은 라이브러리에서 이 패턴을 찾아볼 수 있습니다. 이는 코드를 간결하고 이해하기 쉽게 만들어줍니다.
+이런 이유들로 메소드 체이닝을 쓰는 것을 권하고 사용해본뒤 얼마나 코드가 깔끔해졌는지 꼭 확인 해보길 바랍니다.
+클래스 함수에서 단순히 모든 함수의 끝에 'this'를 리턴해주는 것으로 클래스 메소드를 추가로 연결할 수 있습니다.
+
+**안좋은 예:**
+```javascript
+class Car {
+  constructor() {
+    this.make = 'Honda';
+    this.model = 'Accord';
+    this.color = 'white';
+  }
+
+  setMake(make) {
+    this.make = make;
+  }
+
+  setModel(model) {
+    this.model = model;
+  }
+
+  setColor(color) {
+    this.color = color;
+  }
+
+  save() {
+    console.log(this.make, this.model, this.color);
+  }
+}
+
+const car = new Car();
+car.setColor('pink');
+car.setMake('Ford');
+car.setModel('F-150')
+car.save();
+```
+
+**좋은 예:**
+```javascript
+class Car {
+  constructor() {
+    this.make = 'Honda';
+    this.model = 'Accord';
+    this.color = 'white';
+  }
+
+  setMake(make) {
+    this.make = make;
+    // 메모: 체이닝을 위해 this를 리턴합니다.
+    return this;
+  }
+
+  setModel(model) {
+    this.model = model;
+    // 메모: 체이닝을 위해 this를 리턴합니다.
+    return this;
+  }
+
+  setColor(color) {
+    this.color = color;
+    // 메모: 체이닝을 위해 this를 리턴합니다.
+    return this;
+  }
+
+  save() {
+    console.log(this.make, this.model, this.color);
+    // 메모: 체이닝을 위해 this를 리턴합니다.
+    return this;
+  }
+}
+
+const car = new Car()
+  .setColor('pink')
+  .setMake('Ford')
+  .setModel('F-150')
+  .save();
+```
+**[⬆ 상단으로](#목차)**
+
+### 상속보단 조합을 사용하세요
+Gang of four의 [*Design Patterns*](https://en.wikipedia.org/wiki/Design_Patterns)에서 유명한
+전략으로 당신은 가능하다면 상속보다는 조합을 사용해야합니다. 상속을 사용했을 때 얻을 수 있는 이득보다 조합을 사용했을 때 얻을 수
+있는 이득이 많기 때문입니다. 이 원칙의 요점은 당신이 계속 상속을 사용해서 코드를 작성하고자 할 때 만약 조합을 이용하면
+더 코드를 잘 짤 수 있지 않을까 생각해보라는 것에 있습니다. 때때로는 이것이 맞는 전략이기 때문이죠
+
+"그럼 대체 상속을 언제 사용해야 되는 건가요?"라고 물어 볼 수 있습니다. 이 건 당신이 직면한 문제 상황에 달려있지만
+조합보다 상속을 쓰는게 더 좋을 만한 예시를 몇개 들어 보겠습니다.
+
+1. 당신의 상속관계가 "is-a" 관계가 아니라 "has-a" 관계일 때 (동물 -> 사람 vs. 유저->유저정보)
+2. 기본 클래스의 코드를 다시 사용할 수 있을 때 (인간은 모든 동물처럼 움직일 수 있습니다.)
+3. 기본 클래스를 수정하여 파생된 클래스 모두를 수정하고 싶을 때 (이동시 모든 동물이 소비하는 칼로리를 변경하고 싶을 때)
+
+**안좋은 예:**
+```javascript
+class Employee {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+  }
+
+  // ...
+}
+
+// 이 코드가 안좋은 이유는 Employees가 tax data를 가지고 있기 때문입니다.
+// EmployeeTaxData는 Employee 타입이 아닙니다.
+class EmployeeTaxData extends Employee {
+  constructor(ssn, salary) {
+    super();
+    this.ssn = ssn;
+    this.salary = salary;
+  }
+
+  // ...
+}
+```
+
+**좋은 예:**
+```javascript
+class Employee {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+
+  }
+
+  setTaxData(ssn, salary) {
+    this.taxData = new EmployeeTaxData(ssn, salary);
+  }
+  // ...
+}
+
+class EmployeeTaxData {
+  constructor(ssn, salary) {
+    this.ssn = ssn;
+    this.salary = salary;
+  }
+
+  // ...
+}
+```
+**[⬆ 상단으로](#목차)**
