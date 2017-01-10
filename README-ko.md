@@ -1551,3 +1551,462 @@ class EmployeeTaxData {
 }
 ```
 **[⬆ 상단으로](#목차)**
+
+## **테스트(Testing)**
+테스트는 배포하는 것보다 중요합니다. 테스트 없이 배포한다는 것은 당신이 짜놓은 코드가 언제든 오작동해도 이상하지 않다는 얘기와 같습니다.
+테스트에 얼마나 시간을 투자할지는 당신이 함께 일하는 팀에 달려있지만 Coverage가 100%라는 것은 개발자들에게 높은 자신감과 안도감을 줍니다.
+이 말은 훌륭한 테스트 도구를 보유해야 하는 것 뿐만 아니라 [훌륭한 Coverage 도구](http://gotwarlost.github.io/istanbul/)를 사용해야한다는 것을 의미합니다.
+
+테스트 코드를 작성하지 않는 다는 것은 그 무엇도 변명이 될 수 없습니다. 여기 [훌륭하고 많은 Javascript 테스트 프레임 워크들](http://jstherightway.org/#testing-tools)
+이있습니다. 당신의 팀의 기호에 맞는 프레임워크를 고르기만 하면 됩니다. 만약 테스트 프레임워크를 골랐다면 이제부터는 팀의 목표를 
+모든 새로운 기능/모듈을 짤때 테스트 코드를 작성하는 것으로 하세요. 만약 테스트 주도 개발 방법론(TDD)이 당신에게 맞는 방법이라면
+그건 훌륭한 개발 방법이 될 수 있습니다. 그러나 중요한 것은 당신이 어떠한 기능을 개발하거나 코드를 리팩토링 할 때 
+당신이 정한 Coverage 목표를 달성하는 것에 있습니다.
+
+### 테스트 컵셉
+
+**안좋은 예:**
+```javascript
+const assert = require('assert');
+
+describe('MakeMomentJSGreatAgain', function() {
+  it('handles date boundaries', function() {
+    let date;
+
+    date = new MakeMomentJSGreatAgain('1/1/2015');
+    date.addDays(30);
+    date.shouldEqual('1/31/2015');
+
+    date = new MakeMomentJSGreatAgain('2/1/2016');
+    date.addDays(28);
+    assert.equal('02/29/2016', date);
+
+    date = new MakeMomentJSGreatAgain('2/1/2015');
+    date.addDays(28);
+    assert.equal('03/01/2015', date);
+  });
+});
+```
+
+**좋은 예:**
+```javascript
+const assert = require('assert');
+
+describe('MakeMomentJSGreatAgain', function() {
+  it('handles 30-day months', function() {
+    const date = new MakeMomentJSGreatAgain('1/1/2015');
+    date.addDays(30);
+    date.shouldEqual('1/31/2015');
+  });
+
+  it('handles leap year', function() {
+    const date = new MakeMomentJSGreatAgain('2/1/2016');
+    date.addDays(28);
+    assert.equal('02/29/2016', date);
+  });
+
+  it('handles non-leap year', function() {
+    const date = new MakeMomentJSGreatAgain('2/1/2015');
+    date.addDays(28);
+    assert.equal('03/01/2015', date);
+  });
+});
+```
+**[⬆ 상단으로](#목차)**
+
+## **동시성(Concurrency)**
+### Callback 대신 Promise를 사용하세요
+Callback은 깔끔하지 않습니다. 그리고 엄청나게 많은 괄호 중첩을 만들어 냅니다.
+ES2015/ES6에선 Promise가 내장되어 있습니다. 이걸 쓰세요!
+
+**안좋은 예:**
+```javascript
+require('request').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin', function(err, response) {
+  if (err) {
+    console.error(err);
+  }
+  else {
+    require('fs').writeFile('article.html', response.body, function(err) {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('File written');
+      }
+    })
+  }
+})
+
+```
+
+**좋은 예:**
+```javascript
+require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin')
+  .then(function(response) {
+    return require('fs-promise').writeFile('article.html', response);
+  })
+  .then(function() {
+    console.log('File written');
+  })
+  .catch(function(err) {
+    console.error(err);
+  })
+
+```
+**[⬆ 상단으로](#목차)**
+
+### Async/Await은 Promise보다 더욱 깔끔합니다
+Promise도 Callback에 비해 정말 깔끔하지만 ES2017/ES8에선 async와 await이 있습니다.
+이들은 Callback에대한 더욱 깔끔한 해결책을 줍니다. 오직 필요한 것은 함수앞에 `async`를 붙이는 것 뿐입니다.
+그러면 함수를 논리적으로 연결하기위해 더이상 `then`을 쓰지 않아도 됩니다. 
+만약 당신이 ES2017/ES8 사용할 수 있다면 이것을 사용하세요!
+
+**안좋은 예:**
+```javascript
+require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin')
+  .then(function(response) {
+    return require('fs-promise').writeFile('article.html', response);
+  })
+  .then(function() {
+    console.log('File written');
+  })
+  .catch(function(err) {
+    console.error(err);
+  })
+
+```
+
+**좋은 예:**
+```javascript
+async function getCleanCodeArticle() {
+  try {
+    const request = await require('request-promise')
+    const response = await request.get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin');
+    const fileHandle = await require('fs-promise');
+
+    await fileHandle.writeFile('article.html', response);
+    console.log('File written');
+  } catch(err) {
+    console.log(err);
+  }
+}
+```
+**[⬆ 상단으로](#목차)**
+
+## **에러 처리(Error Handling)**
+에러를 뱉는다는 것은 좋은 것입니다! 즉, 프로그램에서 무언가가 잘못되었을 때 런타임에서 성공적으로 확인되면 
+현재 스택에서 함수 실행을 중단하고 (노드에서) 프로세스를 종료하고 스택 추적으로 콘솔에서 사용자에게 
+그 이유를 알려줍니다.
+ 
+### 단순히 에러를 확인만 하지마세요
+단순히 에러를 확인하는 것만으로 그 에러가 해결되거나 대응 할 수 있게 되는 것은 아닙니다.
+`console.log`를 통해 콘솔에 로그를 기록하는 것은 에러 로그를 잃어버리기 쉽기 때문에 좋은 방법이 아닙니다.
+만약에 `try/catch`로 어떤 코드를 감쌌다면 그건 당신이 그 코드에 어떤 에러가 날지도 모르기 때문에 감싼 것이므로
+그에대한 계획이 있거나 어떠한 장치를 해야합니다.
+
+**안좋은 예:**
+```javascript
+try {
+  functionThatMightThrow();
+} catch (error) {
+  console.log(error);
+}
+```
+
+**좋은 예:**
+```javascript
+try {
+  functionThatMightThrow();
+} catch (error) {
+  // 첫번째 방법은 console.error를 이용하는 것입니다. 이건 console.log보다 조금 더 알아채기 쉽습니다.
+  console.error(error);
+  // 다른 방법은 유저에게 알리는 방법입니다.
+  notifyUserOfError(error);
+  // 또 다른 방법은 서비스 자체에 에러를 기록하는 방법입니다.
+  reportErrorToService(error);
+  // 혹은 그 어떤 방법이 될 수 있습니다.
+}
+```
+**[⬆ 상단으로](#목차)**
+
+
+### Promise가 실패된 것을 무시하지 마세요
+위의 원칙과 같은 이유입니다.
+
+**안좋은 예:**
+```javascript
+getdata()
+.then(data => {
+  functionThatMightThrow(data);
+})
+.catch(error => {
+  console.log(error);
+});
+```
+
+**좋은 예:**
+```javascript
+getdata()
+.then(data => {
+  functionThatMightThrow(data);
+})
+.catch(error => {
+  // One option (more noisy than console.log):
+  console.error(error);
+  // Another option:
+  notifyUserOfError(error);
+  // Another option:
+  reportErrorToService(error);
+  // OR do all three!
+});
+```
+
+**[⬆ 상단으로](#목차)**
+
+## **포맷팅(Formatting)**
+포맷팅은 주관적입니다. 여기에있는 많은 규칙과 마찬가지로 따르기 쉬운 규칙들이 있습니다.
+여기서 알아야 할 것은 포맷팅에대해 과도하게 신경쓰는 것은 의미없다는 것입니다.
+포맷팅 체크를 자동으로 해주는 [많은 도구들](http://standardjs.com/rules.html)이 있기 때문입니다.
+이중 하나를 골라 사용하세요. 개발자들끼리 포맷팅에대해 논쟁하는 것만큼 시간과 돈을 낭비하는 것이 없습니다.
+
+자동으로 서식을 교정해주는 것(들여쓰기, 탭이냐 스페이스냐, 작은 따옴표냐 큰따옴표냐)에 해당하지 않는 사항에
+대해서는 몇가지 지침을 따르는 것이 좋습니다.
+
+### 일관된 대소문자를 사용하세요
+Javascript에는 정해진 타입이 없기때문에 대소문자를 구분하는 것으로 당신의 변수나 함수명 등에서 많은 것을 알 수 있습니다.
+이 규칙 또한 주관적이기 때문에 당신이 팀이 선택한 규칙들을 따르세요 중요한건 항상 일관성 있게 사용해야 한다는 것입니다.
+
+**안좋은 예:**
+```javascript
+const DAYS_IN_WEEK = 7;
+const daysInMonth = 30;
+
+const songs = ['Back In Black', 'Stairway to Heaven', 'Hey Jude'];
+const Artists = ['ACDC', 'Led Zeppelin', 'The Beatles'];
+
+function eraseDatabase() {}
+function restore_database() {}
+
+class animal {}
+class Alpaca {}
+```
+
+**좋은 예:**
+```javascript
+const DAYS_IN_WEEK = 7;
+const DAYS_IN_MONTH = 30;
+
+const songs = ['Back In Black', 'Stairway to Heaven', 'Hey Jude'];
+const artists = ['ACDC', 'Led Zeppelin', 'The Beatles'];
+
+function eraseDatabase() {}
+function restoreDatabase() {}
+
+class Animal {}
+class Alpaca {}
+```
+**[⬆ 상단으로](#목차)**
+
+### 함수 호출자와 함수 수신자는 가깝게 위치시키세요
+어떤 함수가 다른 함수를 호출하면 그 함수들은 소스 파일 안에서 서로 수직으로 근접해 있어야 합니다.
+이상적으로는 함수 호출자를 함수 수신자 바로 위에 위치시켜야 합니다. 우리는 코드를 읽을때 신문을 읽듯
+위에서 아래로 읽기 때문에 코드를 작성 할 때도 읽을 때를 고려하여 작성 해야합니다.
+
+**안좋은 예:**
+```javascript
+class PerformanceReview {
+  constructor(employee) {
+    this.employee = employee;
+  }
+
+  lookupPeers() {
+    return db.lookup(this.employee, 'peers');
+  }
+
+  lookupMananger() {
+    return db.lookup(this.employee, 'manager');
+  }
+
+  getPeerReviews() {
+    const peers = this.lookupPeers();
+    // ...
+  }
+
+  perfReview() {
+      this.getPeerReviews();
+      this.getManagerReview();
+      this.getSelfReview();
+  }
+
+  getManagerReview() {
+    const manager = this.lookupManager();
+  }
+
+  getSelfReview() {
+    // ...
+  }
+}
+
+let review = new PerformanceReview(user);
+review.perfReview();
+```
+
+**좋은 예:**
+```javascript
+class PerformanceReview {
+  constructor(employee) {
+    this.employee = employee;
+  }
+
+  perfReview() {
+      this.getPeerReviews();
+      this.getManagerReview();
+      this.getSelfReview();
+  }
+
+  getPeerReviews() {
+    const peers = this.lookupPeers();
+    // ...
+  }
+
+  lookupPeers() {
+    return db.lookup(this.employee, 'peers');
+  }
+
+  getManagerReview() {
+    const manager = this.lookupManager();
+  }
+
+  lookupMananger() {
+    return db.lookup(this.employee, 'manager');
+  }
+
+  getSelfReview() {
+    // ...
+  }
+}
+
+let review = new PerformanceReview(employee);
+review.perfReview();
+```
+
+**[⬆ 상단으로](#목차)**
+
+## **주석(Comments)**
+### 주석은 단지 그 로직이 복잡하다는 것을 말 할 뿐입니다
+주석을 다는것은 사과해야할 일이며 필수적인 것이 아닙니다. 좋은 코드는 *코드 자체*로 말합니다.
+
+**안좋은 예:**
+```javascript
+function hashIt(data) {
+  // 이건 해쉬입니다.
+  let hash = 0;
+
+  // lengh는 data의 길이입니다.
+  const length = data.length;
+
+  // 데이터의 문자열 개수만큼 반복문을 실행합니다.
+  for (let i = 0; i < length; i++) {
+    // 문자열 코드를 얻습니다.
+    const char = data.charCodeAt(i);
+    // 해쉬를 만듭니다.
+    hash = ((hash << 5) - hash) + char;
+    // 32-bit 정수로 바꿉니다.
+    hash = hash & hash;
+  }
+}
+```
+
+**좋은 예:**
+```javascript
+
+function hashIt(data) {
+  let hash = 0;
+  const length = data.length;
+
+  for (let i = 0; i < length; i++) {
+    const char = data.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+
+    // 32-bit 정수로 바꿉니다.
+    hash = hash & hash;
+  }
+}
+
+```
+**[⬆ 상단으로](#목차)**
+
+### 주석으로된 코드를 남기지 마세요
+버전 관리 도구가 존재하기 때문에 코드를 주석으로 남길 이유가 없습니다.
+ 
+**안좋은 예:**
+```javascript
+doStuff();
+// doOtherStuff();
+// doSomeMoreStuff();
+// doSoMuchStuff();
+```
+
+**좋은 예:**
+```javascript
+doStuff();
+```
+**[⬆ 상단으로](#목차)**
+
+### 코드의 기록에대해 주석으로 남기지 마세요
+버전 관리 도구를 이용해야하는 것을 꼭 기억하세요. 죽은 코드도 불필요한 설명도 특히 코드의 기록에대한 주석도
+필요하지 않습니다. 코드의 기록에대해 보고 싶다면 `git log`를 사용하세요!
+
+**안좋은 예:**
+```javascript
+/**
+ * 2016-12-20: 모나드 제거했음, 이해는 되지 않음 (RM)
+ * 2016-10-01: 모나드 쓰는 로직 개선 (JP)
+ * 2016-02-03: 타입체킹 하는부분 제거 (LI)
+ * 2015-03-14: 버그 수정 (JR)
+ */
+function combine(a, b) {
+  return a + b;
+}
+```
+
+**좋은 예:**
+```javascript
+function combine(a, b) {
+  return a + b;
+}
+```
+**[⬆ 상단으로](#목차)**
+
+### 코드의 위치를 설명하지 마세요
+이건 정말 쓸 때 없습니다. 적절한 들여쓰기와 포맷팅을 하고 함수와 변수의 이름에 의미를 부여하세요.
+
+**안좋은 예:**
+```javascript
+////////////////////////////////////////////////////////////////////////////////
+// Scope Model Instantiation
+////////////////////////////////////////////////////////////////////////////////
+const $scope.model = {
+  menu: 'foo',
+  nav: 'bar'
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Action setup
+////////////////////////////////////////////////////////////////////////////////
+const actions = function() {
+  // ...
+}
+```
+
+**좋은 예:**
+```javascript
+const $scope.model = {
+  menu: 'foo',
+  nav: 'bar'
+};
+
+const actions = function() {
+  // ...
+}
+```
+**[⬆ 상단으로](#목차)**
