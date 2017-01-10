@@ -1,18 +1,18 @@
 # clean-code-javascript
 
 ## 목차
-  1. [소개](#소개)
-  2. [변수](#변수)
-  3. [함수](#함수)
-  4. [객체와 자료구조](#객체와-자료구조)
-  5. [클래스](#클래스)
-  6. [테스트](#테스트)
-  7. [동시성](#동시성)
-  8. [에러 처리](#에러-처리)
-  9. [포멧팅](#포멧팅)
-  10. [주석](#주석)
+  1. [소개(Introduction)](#소개(Introduction))
+  2. [변수(Variables)](#변수(Variables))
+  3. [함수(Functions)](#함수(Functions))
+  4. [객체와 자료구조(Objects and Data Structures)](#객체와-자료구조)
+  5. [클래스(Classes)](#클래스)
+  6. [테스트(Testing)](#테스트)
+  7. [동시성(Concurrency)](#동시성)
+  8. [에러 처리(Error Handling)](#에러-처리)
+  9. [포멧팅(Formatting)](#포멧팅)
+  10. [주석(Comments)](#주석)
   
-## 소개
+## 소개(Introduction)
 ![Humorous image of software quality estimation as a count of how many expletives
 you shout when reading code](http://www.osnews.com/images/comics/wtfm.jpg)
 
@@ -30,7 +30,7 @@ you shout when reading code](http://www.osnews.com/images/comics/wtfm.jpg)
 하지만 당신은 팀원들과 같이 코드를 리뷰하며 점점 완벽하게 만들어가야 합니다. 당신이 처음 작성한 코드를 고칠때 절대로 자신을 질타하지마세요
 대신 코드를 부수고 더 나은 코드를 만드세요!
 
-## **변수**
+## **변수(Variables)**
 ### 의미있고 발음하기 쉬운 변수 이름을 사용하세요
 
 **안좋은 예:**
@@ -180,7 +180,7 @@ function createMicrobrewery(name) {
 ```
 **[⬆ 상단으로](#목차)**
 
-## **함수**
+## **함수(Functions)**
 ### 함수 인자는 2개 이하가 이상적입니다
 매개변수의 개수를 제한 하는 것은 함수 테스팅을 쉽게 만들어 주기 때문에 중요합니다. 만약 매개변수가 3개 이상일 경우엔
 테스트 해야하는 경우의 수가 많아지고 각기 다른 인수들로 여러 사례들을 테스트 해야합니다.
@@ -341,7 +341,7 @@ function parseBetterJSAlternative(code) {
 **[⬆ 상단으로](#목차)**
 
 ### 중복된 코드를 작성하지 마세요
-무조건 절대 어떤 상황에서도 중복된 코드를 작성하지 마세요. 당신이 프로페셔널한 개발자로서 커밋할때 지을 수 있는 가장
+무조건 절대 어떤 상황에서도 중복된 코드를 작성하지 마세요. 당신이 프로페셔널한 개발자로서 커밋할때 저지를 수 있는 가장
 큰 죄입니다. 중복된 코드가 있다는 것은 어떤 로직을 수정해야 할 일이 생겼을 때 수정 해야할 코드가 한 곳 이상이라는 것을 뜻합니다.
 Javascript는 타입이 없는 언어이기 때문에 일반적인 함수를 만드는 것이 쉽습니다. [jsinpect](https://github.com/danielstjules/jsinspect)
 같은 도구를 이용해 리팩토링 가능한 중복된 코드들을 찾으세요.
@@ -543,7 +543,7 @@ console.log(newName); // ['Ryan', 'McDermott'];
 전역 환경을 사용하는 것은 Javascript에서 나쁜 관행입니다. 왜냐하면 다른 라이브러리들과의 충돌이 일어날 수 있고, 
 당신의 API를 쓰는 유저들은 예외를 발견할 때까지 그것을 이해하지 못 할 것입니다. 예제를 하나 생각해봅시다.
 JavaScript의 네이티브 Array 메서드를 확장하여 두 배열 간의 차이를 보여줄 수있는 `diff` 메서드를 사용하려면 어떻게해야할까요? 
-새로운 함수를`Array.prototype`에 쓸 수도 있지만, 똑같은 일을 시도한 다른 라이브러리와 충돌 할 수 있습니다.
+새로운 함수를 `Array.prototype`에 쓸 수도 있지만, 똑같은 일을 시도한 다른 라이브러리와 충돌 할 수 있습니다.
 다른 라이브러리가 `diff` 메소드를 사용하여 첫번째 요소와 마지막 요소의 차이점을 찾으면 어떻게 될까요?
 이것이 단순히 ES2015/ES6의 classes를 사용하여 전역 `Array`를 확장하는 것이 좋은 이유입니다.
 
@@ -649,14 +649,14 @@ const totalOutput = programmerOutput
 
 ### 조건문을 캡슐화 하세요
 
-**Bad:**
+**안좋은 예:**
 ```javascript
 if (fsm.state === 'fetching' && isEmpty(listNode)) {
   /// ...
 }
 ```
 
-**Good**:
+**좋은 예:**
 ```javascript
 function shouldShowSpinner(fsm, listNode) {
   return fsm.state === 'fetching' && isEmpty(listNode);
@@ -670,7 +670,7 @@ if (shouldShowSpinner(fsmInstance, listNodeInstance)) {
 
 ### 조건문의 조건을 부정적인 의미로 사용하지 마세요
 
-**Bad:**
+**안좋은 예:**
 ```javascript
 function isDOMNodeNotPresent(node) {
   // ...
@@ -681,7 +681,7 @@ if (!isDOMNodeNotPresent(node)) {
 }
 ```
 
-**Good**:
+**좋은 예:**
 ```javascript
 function isDOMNodePresent(node) {
   // ...
@@ -694,7 +694,7 @@ if (isDOMNodePresent(node)) {
 **[⬆ 상단으로](#목차)**
 
 ### 조건문 작성을 피하세요
-조건문 작성을 피하라는 것은 매우 불가능한 일로 보인다. 이 얘기를 처음 듣는 사람들은 대부분 "`If문` 없이 어떻게 코드를 짜나요?"라고 말합니다. 
+조건문 작성을 피하라는 것은 매우 불가능한 일로 보입니다. 이 얘기를 처음 듣는 사람들은 대부분 "`If문` 없이 어떻게 코드를 짜나요?"라고 말하죠. 
 하지만 다형성을 이용한다면 동일한 작업을 수행할 수 있습니다. 두번째 질문은 대부분 "물론 그렇게 짤 수 있겠지만 왜 그렇게 해야하나요?"라고 묻습니다. 
 그에대한 대답은 앞서 우리가 공부했던 clean code 컨셉에 있습니다. 함수는 단 하나의 일만 수행하여야 합니다. 
 당신이 함수나 클래스에 `if문`을 쓴다면 그것은 그 함수나 클래스가 한가지 이상의 일을 수행하고 있다고 말하는 것과 같습니다. 
@@ -748,7 +748,7 @@ class Cessna extends Airplane {
 
 ### 타입-체킹을 피하세요 (part 1)
 Javascript는 타입이 정해져있지 않습니다. 이는 당신의 함수가 어떤 타입의 인자든 받을 수 있다는 것을 의미합니다.
-언젠가 당신은 이 자유로움에 화를 입었었고, 이 때문에 당신의 함수에 타입-체킹을 시도 할 수도 있습니다.
+이런 Javascript의 자유로움 때문에 여러 버그가 발생했었고 이 때문에 당신의 함수에 타입-체킹을 시도 할 수도 있습니다.
 하지만 타입-체킹 말고도 이러한 화를 피할 많은 방법들이 존재합니다. 첫번째 방법은 일관성 있는 API를 사용하는 것입니다.
 
 **안좋은 예:**
@@ -775,7 +775,7 @@ function travelToTexas(vehicle) {
 TypeScript를 도입하는 것을 고려해보는 것이 좋습니다. TypeScript는 표준 자바 스크립트 구문에 정적 타입을 제공하므로 
 일반 자바 스크립트의 대안으로 사용하기에 좋습니다. Javascript에서 타입-체킹을 할 때 문제점은 거짓된 `type-safety`
 를 얻기위해 작성된 코드를 설명하기 위해서 많은 주석을 달아야한다는 점입니다. Javascript로 코드를 작성할땐 깔끔하게 코드를 작성하고,
-좋은 테스트 코드를 짜야하며 좋은 코드 리뷰를 해야합니다. 그러기시르면 그냥 TypeScript를 쓰세요!
+좋은 테스트 코드를 짜야하며 좋은 코드 리뷰를 해야합니다. 그러기 싫다면 그냥 TypeScript를 쓰세요!
 
 **안좋은 예:**
 ```javascript
@@ -802,7 +802,7 @@ function combine(val1, val2) {
 최적화가 부족한 곳이 어딘지를 알려주는 [좋은 자료](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers)가 여기 있습니다.
 이것을 참조하여 최신 브라우저들이 최적화 해주지 않는 부분만 최적화를 해주는 것이 좋습니다.
 
-**Bad:**
+**안좋은 예:**
 ```javascript
 
 // 오래된 브라우저의 경우 캐시되지 않은 `list.length`를 통한 반복문은 높은 코스트를 가졌습니다.
@@ -812,7 +812,7 @@ for (let i = 0, len = list.length; i < len; i++) {
 }
 ```
 
-**Good**:
+**좋은 예:**
 ```javascript
 for (let i = 0; i < list.length; i++) {
   // ...
@@ -851,3 +851,4 @@ const req = newRequestModule;
 inventoryTracker('apples', req, 'www.inventory-awesome.io');
 ```
 **[⬆ 상단으로](#목차)**
+
