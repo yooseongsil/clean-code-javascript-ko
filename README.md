@@ -1,5 +1,9 @@
 # clean-code-javascript
 
+* Updated date 2017.1.12
+* 현재 원문의 [cd50889](https://github.com/ryanmcdermott/clean-code-javascript/commit/cd50889707b1b567d5a8c2860d54b37806896d4b)
+까지 반영되어 있습니다.
+
 ## 읽기에 앞서
 오역 및 맞춤법 오타가 있을 수 있습니다. 또한 이해하기 힘든 부분은 의역했습니다.
 만약 수정이 필요한 내용이 있다면 [Issue](https://github.com/qkraudghgh/clean-code-javascript-ko/issues)나 
