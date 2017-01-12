@@ -867,13 +867,13 @@ class BankAccount {
       }
     }
   
-    get balance() {
-      return this._balance;
-    }
-  
-    verifyIfAmountCanBeSetted(val) {
-      // ...
-    }
+  get balance() {
+    return this._balance;
+  }
+
+  verifyIfAmountCanBeSetted(val) {
+    // ...
+  }
 }
 
 const bankAccount = new BankAccount();
