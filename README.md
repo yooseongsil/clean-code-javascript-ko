@@ -86,7 +86,7 @@ getUser();
 ```javascript
 // 대체 86400000 무엇을 의미하는 걸까요?
 setTimeout(() => {
-    this.blastOff();
+  this.blastOff();
 }, 86400000);
 ```
 
@@ -95,7 +95,7 @@ setTimeout(() => {
 // 대문자로 `const` 전역 변수를 선언하세요
 const MILLISECONDS_IN_A_DAY = 86400000;
 setTimeout(() => {
-    this.blastOff();
+  this.blastOff();
 }, MILLISECONDS_IN_A_DAY);
 ```
 **[⬆ 상단으로](#목차)**
