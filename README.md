@@ -73,39 +73,42 @@ getUser();
 ### 검색가능한 이름을 사용하세요
 우리는 작성할 코드보다 읽을 코드가 더 많습니다. 그렇기 때문에 코드를 읽기 쉽고 검색 가능하게 작성해야 합니다.
 그렇지 않으면 여러분의 코드를 이해하려고 하는 사람들에게 큰 어려움을 줍니다.
+검색가능한 이름으로 만드세요.
+[buddy.js](https://github.com/danielstjules/buddy.js) 그리고
+[ESLint](https://github.com/eslint/eslint/blob/660e0918933e6e7fede26bc675a0763a6b357c94/docs/rules/no-magic-numbers.md)
+와 같은 도구들이 이름이 정해져있지 않은 상수들을 발견하고 고칠 수 있게 도와줍니다.
 
 **안좋은 예:**
 ```javascript
-// 대체 525600이 무엇을 의미하는 걸까요?
-for (let i = 0; i < 525600; i++) {
-  runCronJob();
-}
+// 대체 86400000 무엇을 의미하는 걸까요?
+setTimeout(() => {
+    this.blastOff();
+}, 86400000);
 ```
 
 **좋은 예**
 ```javascript
 // 대문자로 `const` 전역 변수를 선언하세요
-const MINUTES_IN_A_YEAR = 525600;
-for (let i = 0; i < MINUTES_IN_A_YEAR; i++) {
-  runCronJob();
-}
+const MILLISECONDS_IN_A_DAY = 86400000;
+setTimeout(() => {
+    this.blastOff();
+}, MILLISECONDS_IN_A_DAY);
 ```
 **[⬆ 상단으로](#목차)**
 
 ### 의도를 나타내는 변수들을 사용하세요
 **안좋은 예:**
 ```javascript
-const cityStateRegex = /^(.+)[,\\s]+(.+?)\s*(\d{5})?$/;
-saveCityState(cityStateRegex.match(cityStateRegex)[1], cityStateRegex.match(cityStateRegex)[2]);
+const address = 'One Infinite Loop, Cupertino 95014';
+const cityStateRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+saveCityState(address.match(cityStateRegex)[1], address.match(cityStateRegex)[2]);
 ```
 
 **좋은 예:**
 ```javascript
-const cityStateRegex = /^(.+)[,\\s]+(.+?)\s*(\d{5})?$/;
-const match = cityStateRegex.match(cityStateRegex)
-const city = match[1];
-const state = match[2];
-saveCityState(city, state);
+const address = 'One Infinite Loop, Cupertino 95014';
+const cityStateRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+const [, city, state] = address.match(cityStateRegex);
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -118,9 +121,9 @@ const locations = ['서울', '인천', '수원'];
 locations.forEach(l => {
   doStuff();
   doSomeOtherStuff();
-  ...
-  ...
-  ...
+  // ...
+  // ...
+  // ...
   // 잠깐, `l`은 또 뭘까요?
   dispatch(l);
 });
@@ -132,9 +135,9 @@ const locations = ['서울', '인천', '수원'];
 locations.forEach(location => {
   doStuff();
   doSomeOtherStuff();
-  ...
-  ...
-  ...
+  // ...
+  // ...
+  // ...
   dispatch(location);
 });
 ```
@@ -169,24 +172,20 @@ function paintCar(car) {
 ```
 **[⬆ 상단으로](#목차)**
 
-### short circuiting 트릭이 조건문 보다 깔끔합니다
+### 기본 매개변수가 short circuiting 트릭이나 조건문 보다 깔끔합니다
 
 **안좋은 예:**
 ```javascript
 function createMicrobrewery(name) {
-  let breweryName;
-  if (name) {
-    breweryName = name;
-  } else {
-    breweryName = 'Hipster Brew Co.';
-  }
+  const breweryName = name || 'Hipster Brew Co.';
+  // ...
 }
 ```
 
 **좋은 예:**
 ```javascript
-function createMicrobrewery(name) {
-  const breweryName = name || 'Hipster Brew Co.'
+function createMicrobrewery(name = 'Hipster Brew Co.') {
+  // ...
 }
 ```
 **[⬆ 상단으로](#목차)**
@@ -207,7 +206,7 @@ JavaScript를 사용할 때 많은 보일러플레이트 없이 바로 객체를
 **안좋은 예:**
 ```javascript
 function createMenu(title, body, buttonText, cancellable) {
-  ...
+  // ...
 }
 ```
 
@@ -218,9 +217,9 @@ const menuConfig = {
   body: 'Bar',
   buttonText: 'Baz',
   cancellable: true
-}
+};
 
-function createMenu(menuConfig) {
+function createMenu(config) {
   ...
 }
 
@@ -263,24 +262,24 @@ function isClientActive(client) {
 
 **안좋은 예:**
 ```javascript
-function dateAdd(date, month) {
+function AddToDate(date, month) {
   // ...
 }
 
 const date = new Date();
 
 // 뭘 추가하는 건지 이름만 보고 알아내기 힘듭니다.
-dateAdd(date, 1);
+AddToDate(date, 1);
 ```
 
 **좋은 예:**
 ```javascript
-function dateAddMonth(date, month) {
+function AddMonthToDate(date, month) {
   // ...
 }
 
 const date = new Date();
-dateAddMonth(date, 1);
+AddMonthToDate(date, 1);
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -300,7 +299,7 @@ function parseBetterJSAlternative(code) {
   REGEXES.forEach(REGEX => {
     statements.forEach(statement => {
       // ...
-    })
+    });
   });
 
   const ast = [];
@@ -310,7 +309,7 @@ function parseBetterJSAlternative(code) {
 
   ast.forEach(node => {
     // parse...
-  })
+  });
 }
 ```
 
@@ -325,8 +324,8 @@ function tokenize(code) {
   const tokens = [];
   REGEXES.forEach(REGEX => {
     statements.forEach(statement => {
-      tokens.push( // ... );
-    })
+      tokens.push( /* ... */ );
+    });
   });
 
   return tokens;
@@ -335,7 +334,7 @@ function tokenize(code) {
 function lexer(tokens) {
   const ast = [];
   tokens.forEach(token => {
-    ast.push( // ... );
+    ast.push( /* ... */ );
   });
 
   return ast;
@@ -346,7 +345,7 @@ function parseBetterJSAlternative(code) {
   const ast = lexer(tokens);
   ast.forEach(node => {
     // parse...
-  })
+  });
 }
 ```
 **[⬆ 상단으로](#목차)**
@@ -354,7 +353,7 @@ function parseBetterJSAlternative(code) {
 ### 중복된 코드를 작성하지 마세요
 무조건 절대 어떤 상황에서도 중복된 코드를 작성하지 마세요. 당신이 프로페셔널한 개발자로서 커밋할때 저지를 수 있는 가장
 큰 죄입니다. 중복된 코드가 있다는 것은 어떤 로직을 수정해야 할 일이 생겼을 때 수정 해야할 코드가 한 곳 이상이라는 것을 뜻합니다.
-JavaScript는 타입이 없는 언어이기 때문에 일반적인 함수를 만드는 것이 쉽습니다. [jsinpect](https://github.com/danielstjules/jsinspect)
+JavaScript는 타입이 없는 언어이기 때문에 일반적인 함수를 만드는 것이 쉽습니다. [jsinspect](https://github.com/danielstjules/jsinspect)
 같은 도구를 이용해 리팩토링 가능한 중복된 코드들을 찾으세요.
 
 **안좋은 예:**
@@ -365,9 +364,9 @@ function showDeveloperList(developers) {
     const experience = developer.getExperience();
     const githubLink = developer.getGithubLink();
     const data = {
-      expectedSalary: expectedSalary,
-      experience: experience,
-      githubLink: githubLink
+      expectedSalary,
+      experience,
+      githubLink
     };
 
     render(data);
@@ -380,9 +379,9 @@ function showManagerList(managers) {
     const experience = manager.getExperience();
     const portfolio = manager.getMBAProjects();
     const data = {
-      expectedSalary: expectedSalary,
-      experience: experience,
-      portfolio: portfolio
+      expectedSalary,
+      experience,
+      portfolio
     };
 
     render(data);
@@ -404,34 +403,14 @@ function showList(employees) {
     }
 
     const data = {
-      expectedSalary: expectedSalary,
-      experience: experience,
-      portfolio: portfolio
+      expectedSalary,
+      experience,
+      portfolio
     };
 
     render(data);
   });
 }
-```
-**[⬆ 상단으로](#목차)**
-
-### short circuiting 트릭 대신에 디폴트 매개변수를 사용하세요
-
-**안좋은 예:**
-```javascript
-function writeForumComment(subject, body) {
-  subject = subject || 'No Subject';
-  body = body || 'No text';
-}
-
-```
-
-**좋은 예:**
-```javascript
-function writeForumComment(subject = 'No subject', body = 'No text') {
-  ...
-}
-
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -444,12 +423,12 @@ const menuConfig = {
   body: 'Bar',
   buttonText: null,
   cancellable: true
-}
+};
 
 function createMenu(config) {
-  config.title = config.title || 'Foo'
-  config.body = config.body || 'Bar'
-  config.buttonText = config.buttonText || 'Baz'
+  config.title = config.title || 'Foo';
+  config.body = config.body || 'Bar';
+  config.buttonText = config.buttonText || 'Baz';
   config.cancellable = config.cancellable === undefined ? config.cancellable : true;
 
 }
@@ -464,7 +443,7 @@ const menuConfig = {
   // 유저가 'body' key의 value를 정하지 않았다.
   buttonText: 'Send',
   cancellable: true
-}
+};
 
 function createMenu(config) {
   config = Object.assign({
@@ -490,7 +469,7 @@ boolean 기반으로 함수가 실행되는 코드가 나뉜다면 함수를 분
 ```javascript
 function createFile(name, temp) {
   if (temp) {
-    fs.create('./temp/' + name);
+    fs.create(`./temp/${name}`);
   } else {
     fs.create(name);
   }
@@ -504,7 +483,7 @@ function createFile(name) {
 }
 
 function createTempFile(name) {
-  createFile('./temp/' + name);
+  createFile(`./temp/${name}`);
 }
 ```
 **[⬆ 상단으로](#목차)**
@@ -542,7 +521,7 @@ function splitIntoFirstAndLastName(name) {
   return name.split(' ');
 }
 
-const name = 'Ryan McDermott'
+const name = 'Ryan McDermott';
 const newName = splitIntoFirstAndLastName(name);
 
 console.log(name); // 'Ryan McDermott';
@@ -560,46 +539,29 @@ JavaScript의 네이티브 Array 메소드를 확장하여 두 배열 간의 차
 
 **안좋은 예:**
 ```javascript
-Array.prototype.diff = function(comparisonArray) {
+Array.prototype.diff = function diff(comparisonArray) {
   const values = [];
   const hash = {};
 
-  for (let i of comparisonArray) {
+  for (const i of comparisonArray) {
     hash[i] = true;
   }
 
-  for (let i of this) {
+  for (const i of this) {
     if (!hash[i]) {
       values.push(i);
     }
   }
 
   return values;
-}
+};
 ```
 
 **좋은 예:**
 ```javascript
 class SuperArray extends Array {
-  constructor(...args) {
-    super(...args);
-  }
-
   diff(comparisonArray) {
-    const values = [];
-    const hash = {};
-
-    for (let i of comparisonArray) {
-      hash[i] = true;
-    }
-
-    for (let i of this) {
-      if (!hash[i]) {
-        values.push(i);
-      }
-    }
-
-    return values;
+    return this.filter(elem => !comparisonArray.includes(elem));
   }
 }
 ```
@@ -663,7 +625,7 @@ const totalOutput = programmerOutput
 **안좋은 예:**
 ```javascript
 if (fsm.state === 'fetching' && isEmpty(listNode)) {
-  /// ...
+  // ...
 }
 ```
 
@@ -714,15 +676,15 @@ if (isDOMNodePresent(node)) {
 **안좋은 예:**
 ```javascript
 class Airplane {
-  //...
+  // ...
   getCruisingAltitude() {
     switch (this.type) {
       case '777':
-        return getMaxAltitude() - getPassengerCount();
+        return this.getMaxAltitude() - this.getPassengerCount();
       case 'Air Force One':
-        return getMaxAltitude();
+        return this.getMaxAltitude();
       case 'Cessna':
-        return getMaxAltitude() - getFuelExpenditure();
+        return this.getMaxAltitude() - this.getFuelExpenditure();
     }
   }
 }
@@ -731,27 +693,27 @@ class Airplane {
 **좋은 예:**
 ```javascript
 class Airplane {
-  //...
+  // ...
 }
 
 class Boeing777 extends Airplane {
-  //...
+  // ...
   getCruisingAltitude() {
-    return getMaxAltitude() - getPassengerCount();
+    return this.getMaxAltitude() - this.getPassengerCount();
   }
 }
 
 class AirForceOne extends Airplane {
-  //...
+  // ...
   getCruisingAltitude() {
-    return getMaxAltitude();
+    return this.getMaxAltitude();
   }
 }
 
 class Cessna extends Airplane {
-  //...
+  // ...
   getCruisingAltitude() {
-    return getMaxAltitude() - getFuelExpenditure();
+    return this.getMaxAltitude() - this.getFuelExpenditure();
   }
 }
 ```
@@ -791,12 +753,12 @@ TypeScript를 도입하는 것을 고려해보는 것이 좋습니다. TypeScrip
 **안좋은 예:**
 ```javascript
 function combine(val1, val2) {
-  if (typeof val1 == "number" && typeof val2 == "number" ||
-      typeof val1 == "string" && typeof val2 == "string") {
+  if (typeof val1 === 'number' && typeof val2 === 'number' ||
+      typeof val1 === 'string' && typeof val2 === 'string') {
     return val1 + val2;
-  } else {
-    throw new Error('Must be of type String or Number');
   }
+  
+  throw new Error('Must be of type String or Number');
 }
 ```
 
@@ -870,46 +832,57 @@ JavaScript는 인터페이스와 타입을 가지고있지 않고 이러한 패�
 그렇기 때문에 getter 및 setter를 사용하여 객체의 데이터에 접근하는 것이 객체의 속성을 찾는 것보다 훨씬 낫습니다.
 "왜요?"라고 물으실 수도 있겠습니다. 왜 그런지에 대해서 몇 가지 이유를 두서없이 적어봤습니다.
 
-1. 객체의 속성을 얻는 것 이상의 많은 것을 하고싶을 때, 코드에서 모든 접근자를 찾아 바꾸고 할 필요가 없습니다.
-2. `set`할때 검증로직을 추가하는 것이 코드를 더 간단하게 만듭니다.
-3. 내부용 API를 캡슐화 할 수 있습니다.
-4. `getting`과 `setting`할 때 로그를 찾거나 에러처리를 하기 쉽습니다.
-5. 클래스를 상속해서 디폴트 동작을 재정의할 수 있습니다.
-6. 서버에서 객체 속성을 받아올 때 lazy load 할 수 있습니다.
+* 객체의 속성을 얻는 것 이상의 많은 것을 하고싶을 때, 코드에서 모든 접근자를 찾아 바꾸고 할 필요가 없습니다.
+* `set`할때 검증로직을 추가하는 것이 코드를 더 간단하게 만듭니다.
+* 내부용 API를 캡슐화 할 수 있습니다.
+* `getting`과 `setting`할 때 로그를 찾거나 에러처리를 하기 쉽습니다.
+* 클래스를 상속해서 디폴트 동작을 재정의할 수 있습니다.
+* 서버에서 객체 속성을 받아올 때 lazy load 할 수 있습니다.
 
 **안좋은 예:**
 ```javascript
 class BankAccount {
   constructor() {
-	   this.balance = 1000;
+    this.balance = 1000;
   }
 }
 
 const bankAccount = new BankAccount();
 
-// 신발을 구매할때..
-bankAccount.balance = bankAccount.balance - 100;
+// 신발을 구매할 때...
+bankAccount.balance -= 100;
 ```
 
 **좋은 예:**
 ```javascript
 class BankAccount {
-  constructor() {
-	   this.balance = 1000;
+  constructor(balance = 1000) {
+	   this._balance = balance;
   }
 
   // getter/setter를 정의할 때 `get`, `set` 같은 접두사가 필요하지 않습니다.
-  withdraw(amount) {
-  	if (verifyAmountCanBeDeducted(amount)) {
-  	  this.balance -= amount;
-  	}
-  }
+  set balance(amount) {
+      if (verifyIfAmountCanBeSetted(amount)) {
+        this._balance = amount;
+      }
+    }
+  
+    get balance() {
+      return this._balance;
+    }
+  
+    verifyIfAmountCanBeSetted(val) {
+      // ...
+    }
 }
 
 const bankAccount = new BankAccount();
+    
+// 신발을 구매할 때...
+bankAccount.balance -= shoesPrice;
 
-// 신발을 구매할때...
-bankAccount.withdraw(100);
+// balance 값을 얻을 때
+let balance = bankAccount.balance;
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -921,34 +894,30 @@ bankAccount.withdraw(100);
 
 const Employee = function(name) {
   this.name = name;
-}
+};
 
-Employee.prototype.getName = function() {
+Employee.prototype.getName = function getName() {
   return this.name;
 }
 
 const employee = new Employee('John Doe');
-console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
 delete employee.name;
-console.log('Employee name: ' + employee.getName()); // Employee name: undefined
+console.log(`Employee name: ${employee.getName()}`); // Employee name: undefined
 ```
 
 **좋은 예:**
 ```javascript
-const Employee = (function() {
-  function Employee(name) {
-    this.getName = function() {
-      return name;
-    };
-  }
-
-  return Employee;
-}());
+const Employee = function (name) {
+  this.getName = function getName() {
+    return name;
+  };
+};
 
 const employee = new Employee('John Doe');
-console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
 delete employee.name;
-console.log('Employee name: ' + employee.getName()); // Employee name: John Doe
+console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -968,12 +937,12 @@ class UserSettings {
   }
 
   changeSettings(settings) {
-    if (this.verifyCredentials(user)) {
+    if (this.verifyCredentials()) {
       // ...
     }
   }
 
-  verifyCredentials(user) {
+  verifyCredentials() {
     // ...
   }
 }
@@ -995,7 +964,7 @@ class UserAuth {
 class UserSettings {
   constructor(user) {
     this.user = user;
-    this.auth = new UserAuth(user)
+    this.auth = new UserAuth(user);
   }
 
   changeSettings(settings) {
@@ -1085,10 +1054,6 @@ class Rectangle {
 }
 
 class Square extends Rectangle {
-  constructor() {
-    super();
-  }
-
   setWidth(width) {
     this.width = width;
     this.height = width;
@@ -1101,23 +1066,21 @@ class Square extends Rectangle {
 }
 
 function renderLargeRectangles(rectangles) {
-  rectangles.forEach(rectangle => {
+  rectangles.forEach((rectangle) => {
     rectangle.setWidth(4);
     rectangle.setHeight(5);
-    let area = rectangle.getArea(); // 정사각형일때 25를 리턴합니다. 하지만 20이어야 하는게 맞습니다.
+    const area = rectangle.getArea(); // 정사각형일때 25를 리턴합니다. 하지만 20이어야 하는게 맞습니다.
     rectangle.render(area);
-  })
+  });
 }
 
-let rectangles = [new Rectangle(), new Rectangle(), new Square()];
+const rectangles = [new Rectangle(), new Rectangle(), new Square()];
 renderLargeRectangles(rectangles);
 ```
 
 **좋은 예:**
 ```javascript
 class Shape {
-  constructor() {}
-
   setColor(color) {
     // ...
   }
@@ -1163,10 +1126,11 @@ class Square extends Shape {
 }
 
 function renderLargeShapes(shapes) {
-  shapes.forEach(shape => {
+  shapes.forEach((shape) => {
     switch (shape.constructor.name) {
       case 'Square':
         shape.setLength(5);
+        break;
       case 'Rectangle':
         shape.setWidth(4);
         shape.setHeight(5);
@@ -1174,7 +1138,7 @@ function renderLargeShapes(shapes) {
 
     const area = shape.getArea();
     shape.render(area);
-  })
+  });
 }
 
 const shapes = [new Rectangle(), new Rectangle(), new Square()];
@@ -1213,7 +1177,7 @@ class DOMTraverser {
 
 const $ = new DOMTraverser({
   rootNode: document.getElementsByTagName('body'),
-  animationModule: function() {} // 우리는 대부분의 경우 DOM을 탐색할 때 애니메이션이 필요하지 않습니다.
+  animationModule() {} // 우리는 대부분의 경우 DOM을 탐색할 때 애니메이션이 필요하지 않습니다.
   // ...
 });
 
@@ -1247,7 +1211,7 @@ class DOMTraverser {
 const $ = new DOMTraverser({
   rootNode: document.getElementsByTagName('body'),
   options: {
-    animationModule: function() {}
+    animationModule() {}
   }
 });
 ```
@@ -1272,6 +1236,16 @@ DIP는 동일한 개념은 아니지만 상위 모듈이 하위 모듈의 세부
 
 **안좋은 예:**
 ```javascript
+class InventoryRequester {
+  constructor() {
+    this.REQ_METHODS = ['HTTP'];
+  }
+
+  requestItem(item) {
+    // ...
+  }
+}
+
 class InventoryTracker {
   constructor(items) {
     this.items = items;
@@ -1285,16 +1259,6 @@ class InventoryTracker {
     this.items.forEach(item => {
       this.requester.requestItem(item);
     });
-  }
-}
-
-class InventoryRequester {
-  constructor() {
-    this.REQ_METHODS = ['HTTP'];
-  }
-
-  requestItem(item) {
-    // ...
   }
 }
 
@@ -1354,68 +1318,68 @@ inventoryTracker.requestItems();
 **안좋은 예:**
 ```javascript
 const Animal = function(age) {
-    if (!(this instanceof Animal)) {
-        throw new Error("Instantiate Animal with `new`");
-    }
-
-    this.age = age;
+  if (!(this instanceof Animal)) {
+    throw new Error("Instantiate Animal with `new`");
+  }
+    
+  this.age = age;
 };
 
 Animal.prototype.move = function() {};
 
 const Mammal = function(age, furColor) {
-    if (!(this instanceof Mammal)) {
-        throw new Error("Instantiate Mammal with `new`");
-    }
+  if (!(this instanceof Mammal)) {
+    throw new Error("Instantiate Mammal with `new`");
+  }
 
-    Animal.call(this, age);
-    this.furColor = furColor;
+  Animal.call(this, age);
+  this.furColor = furColor;
 };
 
 Mammal.prototype = Object.create(Animal.prototype);
 Mammal.prototype.constructor = Mammal;
-Mammal.prototype.liveBirth = function() {};
+Mammal.prototype.liveBirth = function liveBirth() {};
 
 const Human = function(age, furColor, languageSpoken) {
-    if (!(this instanceof Human)) {
-        throw new Error("Instantiate Human with `new`");
-    }
+  if (!(this instanceof Human)) {
+    throw new Error("Instantiate Human with `new`");
+  }
 
-    Mammal.call(this, age, furColor);
-    this.languageSpoken = languageSpoken;
+  Mammal.call(this, age, furColor);
+  this.languageSpoken = languageSpoken;
 };
 
 Human.prototype = Object.create(Mammal.prototype);
 Human.prototype.constructor = Human;
-Human.prototype.speak = function() {};
+Human.prototype.speak = function speak() {};
 ```
 
 **좋은 예:**
 ```javascript
 class Animal {
-    constructor(age) {
-        this.age = age;
-    }
+  constructor(age) {
+    this.age = age;
+  }
 
-    move() {}
+  move() { /* ... */ }
 }
 
 class Mammal extends Animal {
-    constructor(age, furColor) {
-        super(age);
-        this.furColor = furColor;
-    }
+  constructor(age, furColor) {
+    super(age);
+    this.furColor = furColor;
+  }
 
-    liveBirth() {}
+  liveBirth() { /* ... */ }
 }
 
 class Human extends Mammal {
-    constructor(age, furColor, languageSpoken) {
-        super(age, furColor);
-        this.languageSpoken = languageSpoken;
-    }
+  constructor(age, furColor, languageSpoken) {
+    super(age, furColor);
+    this.languageSpoken = languageSpoken;
+  }
 
-    speak() {}
+  speak() { /* ... */ }
 }
 ```
 **[⬆ 상단으로](#목차)**
@@ -1457,7 +1421,7 @@ class Car {
 const car = new Car();
 car.setColor('pink');
 car.setMake('Ford');
-car.setModel('F-150')
+car.setModel('F-150');
 car.save();
 ```
 
@@ -1542,25 +1506,24 @@ class EmployeeTaxData extends Employee {
 
 **좋은 예:**
 ```javascript
-class Employee {
-  constructor(name, email) {
-    this.name = name;
-    this.email = email;
-
-  }
-
-  setTaxData(ssn, salary) {
-    this.taxData = new EmployeeTaxData(ssn, salary);
-  }
-  // ...
-}
-
 class EmployeeTaxData {
   constructor(ssn, salary) {
     this.ssn = ssn;
     this.salary = salary;
   }
+  
+  // ...
+}
 
+class Employee {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
+  }
+
+  setTaxData(ssn, salary) {
+    this.taxData = new EmployeeTaxData(ssn, salary);
+  }
   // ...
 }
 ```
@@ -1583,8 +1546,8 @@ class EmployeeTaxData {
 ```javascript
 const assert = require('assert');
 
-describe('MakeMomentJSGreatAgain', function() {
-  it('handles date boundaries', function() {
+describe('MakeMomentJSGreatAgain', () => {
+  it('handles date boundaries', () => {
     let date;
 
     date = new MakeMomentJSGreatAgain('1/1/2015');
@@ -1606,20 +1569,20 @@ describe('MakeMomentJSGreatAgain', function() {
 ```javascript
 const assert = require('assert');
 
-describe('MakeMomentJSGreatAgain', function() {
-  it('handles 30-day months', function() {
+describe('MakeMomentJSGreatAgain', () => {
+  it('handles 30-day months', () => {
     const date = new MakeMomentJSGreatAgain('1/1/2015');
     date.addDays(30);
     date.shouldEqual('1/31/2015');
   });
 
-  it('handles leap year', function() {
+  it('handles leap year', () => {
     const date = new MakeMomentJSGreatAgain('2/1/2016');
     date.addDays(28);
     assert.equal('02/29/2016', date);
   });
 
-  it('handles non-leap year', function() {
+  it('handles non-leap year', () => {
     const date = new MakeMomentJSGreatAgain('2/1/2015');
     date.addDays(28);
     assert.equal('03/01/2015', date);
@@ -1635,35 +1598,34 @@ ES2015/ES6에선 Promise가 내장되어 있습니다. 이걸 쓰세요!
 
 **안좋은 예:**
 ```javascript
-require('request').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin', function(err, response) {
-  if (err) {
-    console.error(err);
-  }
-  else {
-    require('fs').writeFile('article.html', response.body, function(err) {
-      if (err) {
-        console.error(err);
+require('request').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin', (requestErr, response) => {
+  if (requestErr) {
+    console.error(requestErr);
+  } else {
+    require('fs').writeFile('article.html', response.body, (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr);
       } else {
         console.log('File written');
       }
-    })
+    });
   }
-})
+});
 
 ```
 
 **좋은 예:**
 ```javascript
 require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin')
-  .then(function(response) {
+  .then((response) => {
     return require('fs-promise').writeFile('article.html', response);
   })
-  .then(function() {
+  .then(() => {
     console.log('File written');
   })
-  .catch(function(err) {
+  .catch((err) => {
     console.error(err);
-  })
+  });
 
 ```
 **[⬆ 상단으로](#목차)**
@@ -1677,13 +1639,13 @@ Promise도 Callback에 비해 정말 깔끔하지만 ES2017/ES8에선 async와 a
 **안좋은 예:**
 ```javascript
 require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin')
-  .then(function(response) {
+  .then(response => {
     return require('fs-promise').writeFile('article.html', response);
   })
-  .then(function() {
+  .then(() => {
     console.log('File written');
   })
-  .catch(function(err) {
+  .catch(err => {
     console.error(err);
   })
 
@@ -1693,14 +1655,14 @@ require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Marti
 ```javascript
 async function getCleanCodeArticle() {
   try {
-    const request = await require('request-promise')
+    const request = await require('request-promise');
     const response = await request.get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin');
     const fileHandle = await require('fs-promise');
 
     await fileHandle.writeFile('article.html', response);
     console.log('File written');
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 }
 ```
@@ -1846,9 +1808,9 @@ class PerformanceReview {
   }
 
   perfReview() {
-      this.getPeerReviews();
-      this.getManagerReview();
-      this.getSelfReview();
+    this.getPeerReviews();
+    this.getManagerReview();
+    this.getSelfReview();
   }
 
   getManagerReview() {
@@ -1860,7 +1822,7 @@ class PerformanceReview {
   }
 }
 
-let review = new PerformanceReview(user);
+const review = new PerformanceReview(user);
 review.perfReview();
 ```
 
@@ -1872,9 +1834,9 @@ class PerformanceReview {
   }
 
   perfReview() {
-      this.getPeerReviews();
-      this.getManagerReview();
-      this.getSelfReview();
+    this.getPeerReviews();
+    this.getManagerReview();
+    this.getSelfReview();
   }
 
   getPeerReviews() {
@@ -1899,7 +1861,7 @@ class PerformanceReview {
   }
 }
 
-let review = new PerformanceReview(employee);
+const review = new PerformanceReview(employee);
 review.perfReview();
 ```
 
@@ -1925,7 +1887,7 @@ function hashIt(data) {
     // 해쉬를 만듭니다.
     hash = ((hash << 5) - hash) + char;
     // 32-bit 정수로 바꿉니다.
-    hash = hash & hash;
+    hash &= hash;
   }
 }
 ```
@@ -1942,7 +1904,7 @@ function hashIt(data) {
     hash = ((hash << 5) - hash) + char;
 
     // 32-bit 정수로 바꿉니다.
-    hash = hash & hash;
+    hash &= hash;
   }
 }
 
@@ -1999,7 +1961,7 @@ function combine(a, b) {
 ////////////////////////////////////////////////////////////////////////////////
 // 스코프 모델 정의
 ////////////////////////////////////////////////////////////////////////////////
-const $scope.model = {
+$scope.model = {
   menu: 'foo',
   nav: 'bar'
 };
@@ -2009,18 +1971,18 @@ const $scope.model = {
 ////////////////////////////////////////////////////////////////////////////////
 const actions = function() {
   // ...
-}
+};
 ```
 
 **좋은 예:**
 ```javascript
-const $scope.model = {
+$scope.model = {
   menu: 'foo',
   nav: 'bar'
 };
 
 const actions = function() {
   // ...
-}
+};
 ```
 **[⬆ 상단으로](#목차)**
