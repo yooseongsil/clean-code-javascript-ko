@@ -1,7 +1,7 @@
 # clean-code-javascript
 
-* Updated date 2017.1.12
-* 현재 원문의 [cd50889](https://github.com/ryanmcdermott/clean-code-javascript/commit/cd50889707b1b567d5a8c2860d54b37806896d4b)
+* Updated date 2017.1.16
+* 현재 원문의 [00a5068](https://github.com/ryanmcdermott/clean-code-javascript/commit/00a50681b1c0a24e9c8c08d8872fee9c76da17d5)
 까지 반영되어 있습니다.
 
 ## 읽기에 앞서
