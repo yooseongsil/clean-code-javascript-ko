@@ -55,7 +55,7 @@ const yyyymmdstr = moment().format('YYYY/MM/DD');
 
 **좋은 예:**
 ```javascript
-const yearMonthDay = moment().format('YYYY/MM/DD');
+const currentDate = moment().format('YYYY/MM/DD');
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -85,18 +85,14 @@ getUser();
 **안좋은 예:**
 ```javascript
 // 대체 86400000 무엇을 의미하는 걸까요?
-setTimeout(() => {
-  this.blastOff();
-}, 86400000);
+setTimeout(blastOff, 86400000);
 ```
 
 **좋은 예**
 ```javascript
 // 대문자로 `const` 전역 변수를 선언하세요
 const MILLISECONDS_IN_A_DAY = 86400000;
-setTimeout(() => {
-  this.blastOff();
-}, MILLISECONDS_IN_A_DAY);
+setTimeout(blastOff, MILLISECONDS_IN_A_DAY);
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -104,15 +100,15 @@ setTimeout(() => {
 **안좋은 예:**
 ```javascript
 const address = 'One Infinite Loop, Cupertino 95014';
-const cityStateRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
-saveCityState(address.match(cityStateRegex)[1], address.match(cityStateRegex)[2]);
+const cityZipCodeRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+saveCityZipCode(address.match(cityZipCodeRegex)[1], address.match(cityZipCodeRegex)[2]);
 ```
-
 **좋은 예:**
 ```javascript
 const address = 'One Infinite Loop, Cupertino 95014';
-const cityStateRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
-const [, city, state] = address.match(cityStateRegex);
+const cityZipCodeRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+const [, city, zipCode] = address.match(cityZipCodeRegex);
+saveCityZipCode(city, zipCode);
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -355,10 +351,22 @@ function parseBetterJSAlternative(code) {
 **[⬆ 상단으로](#목차)**
 
 ### 중복된 코드를 작성하지 마세요
-무조건 절대 어떤 상황에서도 중복된 코드를 작성하지 마세요. 당신이 프로페셔널한 개발자로서 커밋할때 저지를 수 있는 가장
-큰 죄입니다. 중복된 코드가 있다는 것은 어떤 로직을 수정해야 할 일이 생겼을 때 수정 해야할 코드가 한 곳 이상이라는 것을 뜻합니다.
-JavaScript는 타입이 없는 언어이기 때문에 일반적인 함수를 만드는 것이 쉽습니다. [jsinspect](https://github.com/danielstjules/jsinspect)
-같은 도구를 이용해 리팩토링 가능한 중복된 코드들을 찾으세요.
+중복된 코드를 작성하지 않기위해 최선을 다하세요.
+중복된 코드가 있다는 것은 어떤 로직을 수정해야 할 일이 생겼을 때 수정 해야할 코드가 한 곳 이상이라는 것을 뜻합니다.
+
+만약 당신이 레스토랑을 운영하면서 토마토나 양파, 마늘, 고추같은 것들의 재고관리를 해야한다고 생각해보세요.
+재고가 적혀있는 종이가 여러장 있다면 토마토나 양파의 재고가 변동되었을 때 재고가 적혀있는 모든 종이를 수정해야 합니다.
+만약 재고를 관리하는 종이가 한 장이었다면 한 장의 재고 목록만 수정하면 됐겠죠!
+
+종종 코드를 살펴보면 사소한 몇몇의 차이점 때문에 중복된 코드를 작성한 경우가 있고
+이런 차이점들은 대부분 똑같은 일을 하는 분리된 함수들을 갖도록 강요합니다.
+즉 중복 코드를 제거한다는 것은 하나의 함수 / 모듈 / 클래스를 사용하여 이 여러 가지 사소한 차이점을 처리 할 수 있는
+추상화를 만드는 것을 의미합니다.
+
+그리고 추상화 할 부분이 남아있는 것은 위험하기때문에 *클래스* 섹션에 제시된 여러 원칙들을 따라야 합니다.
+잘 추상화 하지 못한 코드는 중복된 코드보다 나쁠 수 있으므로 조심하세요. 즉 추상화를 잘 할 수 있다면
+그렇게 하라는 말입니다. 코드의 중복을 피한다면 여러분이 원할 때 언제든 한 곳만 수정해도 다른 모든 코드에
+반영되게 할 수 있습니다.
 
 **안좋은 예:**
 ```javascript
@@ -544,20 +552,8 @@ JavaScript의 네이티브 Array 메소드를 확장하여 두 배열 간의 차
 **안좋은 예:**
 ```javascript
 Array.prototype.diff = function diff(comparisonArray) {
-  const values = [];
-  const hash = {};
-
-  for (const i of comparisonArray) {
-    hash[i] = true;
-  }
-
-  for (const i of this) {
-    if (!hash[i]) {
-      values.push(i);
-    }
-  }
-
-  return values;
+  const hash = new Set(comparisonArray);
+  return this.filter(elem => !hash.has(elem));
 };
 ```
 
@@ -565,7 +561,8 @@ Array.prototype.diff = function diff(comparisonArray) {
 ```javascript
 class SuperArray extends Array {
   diff(comparisonArray) {
-    return this.filter(elem => !comparisonArray.includes(elem));
+    const hash = new Set(comparisonArray);
+    return this.filter(elem => !hash.has(elem));
   }
 }
 ```
@@ -987,33 +984,80 @@ Bertrand Meyer에 말에 의하면 "소프트웨어 개체(클래스, 모듈, �
 
 **안좋은 예:**
 ```javascript
-class AjaxRequester {
+class AjaxAdapter extends Adapter {
   constructor() {
-    // DELETE 같은 다른 HTTP METHOD를 추가하려면 어떻게 해야 할까요?
-    // 우선 이 파일을 열어 배열에 직접 'DELETE'를 추가해야 합니다.
-    this.HTTP_METHODS = ['POST', 'PUT', 'GET'];
+    super();
+    this.name = 'ajaxAdapter';
+  }
+}
+
+class NodeAdapter extends Adapter {
+  constructor() {
+    super();
+    this.name = 'nodeAdapter';
+  }
+}
+
+class HttpRequester {
+  constructor(adapter) {
+    this.adapter = adapter;
   }
 
-  get(url) {
-    // ...
+  fetch(url) {
+    if (this.adapter.name === 'ajaxAdapter') {
+      return makeAjaxCall(url).then((response) => {
+        // transform response and return
+      });
+    } else if (this.adapter.name === 'httpNodeAdapter') {
+      return makeHttpCall(url).then((response) => {
+        // transform response and return
+      });
+    }
   }
+}
 
+function makeAjaxCall(url) {
+  // request and return promise
+}
+
+function makeHttpCall(url) {
+  // request and return promise
 }
 ```
 
 **좋은 예:**
 ```javascript
-class AjaxRequester {
+class AjaxAdapter extends Adapter {
   constructor() {
-    this.HTTP_METHODS = ['POST', 'PUT', 'GET'];
+    super();
+    this.name = 'ajaxAdapter';
   }
 
-  get(url) {
-    // ...
+  request(url) {
+    // request and return promise
+  }
+}
+
+class NodeAdapter extends Adapter {
+  constructor() {
+    super();
+    this.name = 'nodeAdapter';
   }
 
-  addHTTPMethod(method) {
-    this.HTTP_METHODS.push(method);
+  request(url) {
+    // request and return promise
+  }
+}
+
+class HttpRequester {
+  constructor(adapter) {
+    this.adapter = adapter;
+  }
+
+  fetch(url) {
+    return this.adapter.request(url).then((response) => {
+      // transform response and return
+    });
   }
 }
 ```
@@ -1387,10 +1431,8 @@ class Human extends Mammal {
 **[⬆ 상단으로](#목차)**
 
 ### 메소드 체이닝을 사용하세요
-이 원칙은 `Clean Code` 책에는 위배되는 것이지만 우리는 이번만큼은 이 원칙을 따라야합니다.
-메소드 체이닝은 항상 더럽고 [디미터 법칙(Law of Demeter)](https://en.wikipedia.org/wiki/Law_of_Demeter)
-을 위반한다고 항상 논의되어왔습니다. 물론 맞는 말이지만 JavaScript에서 메소드 체이닝은 매우 유용한 패턴이며
-jQuery나 Lodash같은 많은 라이브러리에서 이 패턴을 찾아볼 수 있습니다. 이는 코드를 간결하고 이해하기 쉽게 만들어줍니다.
+JavaScript에서 메소드 체이닝은 매우 유용한 패턴이며 jQuery나 Lodash같은 많은 라이브러리에서 이 패턴을 찾아볼 수 있습니다.
+이는 코드를 간결하고 이해하기 쉽게 만들어줍니다.
 이런 이유들로 메소드 체이닝을 쓰는 것을 권하고, 사용해본뒤 얼마나 코드가 깔끔해졌는지 꼭 확인 해보길 바랍니다.
 클래스 함수에서 단순히 모든 함수의 끝에 'this'를 리턴해주는 것으로 클래스 메소드를 추가로 연결할 수 있습니다.
 
@@ -1657,11 +1699,8 @@ require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Marti
 ```javascript
 async function getCleanCodeArticle() {
   try {
-    const request = await require('request-promise');
-    const response = await request.get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin');
-    const fileHandle = await require('fs-promise');
-
-    await fileHandle.writeFile('article.html', response);
+    const response = await require('request-promise').get('https://en.wikipedia.org/wiki/Robert_Cecil_Martin');
+    await require('fs-promise').writeFile('article.html', response);
     console.log('File written');
   } catch(err) {
     console.error(err);
@@ -1800,7 +1839,7 @@ class PerformanceReview {
     return db.lookup(this.employee, 'peers');
   }
 
-  lookupMananger() {
+  lookupManager() {
     return db.lookup(this.employee, 'manager');
   }
 
@@ -1854,7 +1893,7 @@ class PerformanceReview {
     const manager = this.lookupManager();
   }
 
-  lookupMananger() {
+  lookupManager() {
     return db.lookup(this.employee, 'manager');
   }
 
