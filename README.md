@@ -1,7 +1,7 @@
 # clean-code-javascript
 
-* Updated date 2017.1.16
-* 현재 원문의 [00a5068](https://github.com/ryanmcdermott/clean-code-javascript/commit/00a50681b1c0a24e9c8c08d8872fee9c76da17d5)
+* Updated date 2017.1.31
+* 현재 원문의 [ac6a51d](https://github.com/ryanmcdermott/clean-code-javascript/commit/ac6a51d640064ec4ac6cada7af477df8967dd193)
 까지 반영되어 있습니다.
 
 ## 읽기에 앞서
@@ -24,9 +24,10 @@
   5. [클래스(Classes)](#클래스classes)
   6. [테스트(Testing)](#테스트testing)
   7. [동시성(Concurrency)](#동시성concurrency)
-  8. [에러 처리(Error Handling)](#에러-처리error-Handling)
+  8. [에러 처리(Error Handling)](#에러-처리error-handling)
   9. [포맷팅(Formatting)](#포맷팅formatting)
   10. [주석(Comments)](#주석comments)
+  11. [번역(Translation)](#번역translation)
   
 ## 소개(Introduction)
 ![코드를 읽을 때 소리 지르는 숫자로 소프트웨어 품질을 추정하는 유머 사진](http://www.osnews.com/images/comics/wtfm.jpg)
@@ -107,7 +108,7 @@ saveCityZipCode(address.match(cityZipCodeRegex)[1], address.match(cityZipCodeReg
 ```javascript
 const address = 'One Infinite Loop, Cupertino 95014';
 const cityZipCodeRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
-const [, city, zipCode] = address.match(cityZipCodeRegex);
+const [, city, zipCode] = address.match(cityZipCodeRegex) || [];
 saveCityZipCode(city, zipCode);
 ```
 **[⬆ 상단으로](#목차)**
@@ -173,6 +174,8 @@ function paintCar(car) {
 **[⬆ 상단으로](#목차)**
 
 ### 기본 매개변수가 short circuiting 트릭이나 조건문 보다 깔끔합니다
+기본 매개변수는 종종 short circuiting 트릭보다 깔끔합니다. 기본 매개변수는 매개변수가 `undefined`일때만 
+적용됩니다. `''`, `""`, `false`, `null`, `0`, `NaN` 같은 `falsy`한 값들은 기본 매개변수가 적용되지 않습니다.
 
 **안좋은 예:**
 ```javascript
@@ -195,13 +198,24 @@ function createMicrobrewery(name = 'Hipster Brew Co.') {
 매개변수의 개수를 제한 하는 것은 함수 테스팅을 쉽게 만들어 주기 때문에 중요합니다. 만약 매개변수가 3개 이상일 경우엔
 테스트 해야하는 경우의 수가 많아지고 각기 다른 인수들로 여러 사례들을 테스트 해야합니다.
 
-인자가 한 개도 없는 것이 이상적인 케이스이고 1개나 2개 정도의 인자는 괜찮습니다. 
-하지만 3개는 피해야하고 그 이상이라면 줄이는 것이 좋습니다. 
+1개나 2개의 인자를 가지고 있는 것이 가장 이상적인 케이스입니다.
+그리고 3개의 인자는 가능한 피해야합니다. 그것보다 더 많다면 통합되어야합니다.
 만약 당신이 2개 이상의 인자를 가진 함수를 사용한다면 그 함수에게 너무 많은 역할을 하게 만든 것입니다.
 그렇지 않은 경우라면 대부분의 경우 상위 객체는 1개의 인자만으로 충분합니다.
 
 JavaScript를 사용할 때 많은 보일러플레이트 없이 바로 객체를 만들 수 있습니다.
 그러므로 당신이 만약 많은 인자들을 사용해야 한다면 객체를 이용할 수 있습니다.
+
+함수가 기대하는 속성을 좀더 명확히 하기 위해서 es6의 비구조화(destructuring) 구문을 사용할 수 있고
+이 구문에는 몇가지 장점이 있습니다.
+
+1. 어떤 사람이 그 함수의 시그니쳐(인자의 타입, 반환되는 값의 타입 등)를 볼 때 어떤 속성이 사용되는지
+즉시 알 수 있습니다.
+2. 또한 비구조화는 함수에 전달된 인수 객체의 지정된 기본타입 값을 복제하며 이는 사이드이펙트가
+일어나는 것을 방지합니다. 참고로 인수 객체로부터 비구조화된 객체와 배열은 복제되지 않습니다.
+3. Linter를 사용하면 사용하지않는 인자에 대해 경고해주거나 비구조화 없이 코드를 짤 수 없게 할 수 있습니다.
+
+
 
 **안좋은 예:**
 ```javascript
@@ -212,17 +226,16 @@ function createMenu(title, body, buttonText, cancellable) {
 
 **좋은 예:**
 ```javascript
-const menuConfig = {
+function createMenu({ title, body, buttonText, cancellable }) {
+  // ...
+}
+
+createMenu({
   title: 'Foo',
   body: 'Bar',
   buttonText: 'Baz',
   cancellable: true
-};
-
-function createMenu(config) {
-  ...
-}
-
+});
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -403,8 +416,8 @@ function showManagerList(managers) {
 
 **좋은 예:**
 ```javascript
-function showList(employees) {
-  employees.forEach(employee => {
+function showEmployeeList(employees) {
+  employees.forEach((employee) => {
     const expectedSalary = employee.calculateExpectedSalary();
     const experience = employee.getExperience();
 
@@ -500,7 +513,7 @@ function createTempFile(name) {
 ```
 **[⬆ 상단으로](#목차)**
 
-### 사이드 이펙트를 피하세요
+### 사이드 이펙트를 피하세요 (part 1)
 함수는 값을 받아서 어떤 일을 하거나 값을 리턴할때 사이드 이팩트를 만들어냅니다.
 사이드 이팩트는 파일에 쓰여질 수도 있고, 전역 변수를 수정할 수 있으며, 실수로 모든 돈을 다른 사람에게 보낼 수도 있습니다.
 
@@ -538,6 +551,44 @@ const newName = splitIntoFirstAndLastName(name);
 
 console.log(name); // 'Ryan McDermott';
 console.log(newName); // ['Ryan', 'McDermott'];
+```
+**[⬆ 상단으로](#목차)**
+
+### 사이드 이펙트를 피하세요 (part 2)
+자바스크립트에서는 기본타입 자료형은 값을 전달하고 객체와 배열은 참조를 전달합니다.
+객체와 배열인 경우를 한번 살펴봅시다. 우리가 만든 함수는 쇼핑카트 배열에 변화를 주며
+이 변화는 구매목록에 어떤 상품을 추가하는 기능 같은 것을 말합니다.
+만약 `장바구니` 배열을 사용하는 어느 다른 함수가 있다면 이러한 추가에 영향을 받습니다.
+이것은 좋을 수도 있지만, 안좋을 수도 있습니다. 안좋은 예를 한번 상상해봅시다.
+
+유저가 구매하기 버튼을 눌러 `구매` 함수를 호출합니다. 이는 네트워크 요청을 생성하고 서버에 `장바구니` 배열을 보냅니다.
+하지만 네트워크 연결이 좋지않아서 `구매` 함수는 다시한번 네트워크 요청을 보내야 하는 상황이 생겼습니다.
+이때, 사용자가 네트워크 요청이 시작되기 전에 실수로 원하지 않는 상품의 "장바구니에 추가" 버튼을 실수로 클릭하면 어떻게됩니까?
+이런 일이 발생하고 네트워크 요청이 시작되면 `장바구니에 추가`함수 때문에 실수로 변경된 `장바구니` 배열을 서버에 보내게 됩니다.
+
+가장 좋은 방법은 `장바구니에 추가`는 항상 `장바구니` 배열을 복제하여 수정하고 복제본을 반환하는 것입니다.
+이렇게하면 장바구니 참조를 보유하고있는 다른 함수가 다른 변경 사항의 영향을 받지 않게됩니다.
+
+이 접근법에대해 말하고 싶은 것이 두가지 있습니다.
+
+1. 실제로 입력된 객체를 수정하고 싶은 경우가 있을 수 있지만 이러한 예제를 생각해보고 적용해보면 그런 경우는
+거의 없다는 것을 깨달을 수 있습니다. 그리고 대부분의 것들이 사이드 이펙트 없이 리팩토링 될 수 있습니다.
+2. 큰 객체를 복제하는 것은 성능 측면에서 값이 매우 비쌉니다. 운좋게도 이런게 큰 문제가 되지는 않습니다.
+왜냐하면 이러한 프로그래밍 접근법을 가능하게해줄 [좋은 라이브러리](https://facebook.github.io/immutable-js/)가 있기 때문입니다.
+이는 객체와 배열을 수동으로 복제하는 것처럼 메모리 집약적이지 않게 해주고 빠르게 복제해줍니다.
+
+**Bad:**
+```javascript
+const addItemToCart = (cart, item) => {
+  cart.push({ item, date: Date.now() });
+};
+```
+
+**Good:**
+```javascript
+const addItemToCart = (cart, item) => {
+  return [...cart, { item, date : Date.now() }];
+};
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -617,7 +668,7 @@ const programmerOutput = [
 
 const totalOutput = programmerOutput
   .map(programmer => programmer.linesOfCode)
-  .reduce((acc, linesOfCode) => acc + linesOfCode, 0);
+  .reduce((acc, linesOfCode) => acc + linesOfCode, INITIAL_VALUE);
 ```
 **[⬆ 상단으로](#목차)**
 
@@ -729,7 +780,7 @@ JavaScript는 타입이 정해져있지 않습니다. 이는 당신의 함수가
 ```javascript
 function travelToTexas(vehicle) {
   if (vehicle instanceof Bicycle) {
-    vehicle.peddle(this.currentLocation, new Location('texas'));
+    vehicle.pedal(this.currentLocation, new Location('texas'));
   } else if (vehicle instanceof Car) {
     vehicle.drive(this.currentLocation, new Location('texas'));
   }
@@ -863,7 +914,7 @@ class BankAccount {
 
   // getter/setter를 정의할 때 `get`, `set` 같은 접두사가 필요하지 않습니다.
   set balance(amount) {
-      if (verifyIfAmountCanBeSetted(amount)) {
+      if (this.verifyIfAmountCanBeSetted(amount)) {
         this._balance = amount;
       }
     }
@@ -899,7 +950,7 @@ const Employee = function(name) {
 
 Employee.prototype.getName = function getName() {
   return this.name;
-}
+};
 
 const employee = new Employee('John Doe');
 console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
@@ -909,13 +960,15 @@ console.log(`Employee name: ${employee.getName()}`); // Employee name: undefined
 
 **좋은 예:**
 ```javascript
-const Employee = function (name) {
-  this.getName = function getName() {
-    return name;
+function makeEmployee(name) {
+  return {
+    getName() {
+      return name;
+    },
   };
-};
+}
 
-const employee = new Employee('John Doe');
+const employee = makeEmployee('John Doe');
 console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
 delete employee.name;
 console.log(`Employee name: ${employee.getName()}`); // Employee name: John Doe
@@ -1139,17 +1192,9 @@ class Shape {
 }
 
 class Rectangle extends Shape {
-  constructor() {
+  constructor(width, height) {
     super();
-    this.width = 0;
-    this.height = 0;
-  }
-
-  setWidth(width) {
     this.width = width;
-  }
-
-  setHeight(height) {
     this.height = height;
   }
 
@@ -1159,12 +1204,8 @@ class Rectangle extends Shape {
 }
 
 class Square extends Shape {
-  constructor() {
+  constructor(length) {
     super();
-    this.length = 0;
-  }
-
-  setLength(length) {
     this.length = length;
   }
 
@@ -1175,21 +1216,12 @@ class Square extends Shape {
 
 function renderLargeShapes(shapes) {
   shapes.forEach((shape) => {
-    switch (shape.constructor.name) {
-      case 'Square':
-        shape.setLength(5);
-        break;
-      case 'Rectangle':
-        shape.setWidth(4);
-        shape.setHeight(5);
-    }
+      const area = shape.getArea();
+      shape.render(area);
+    });
+  }
 
-    const area = shape.getArea();
-    shape.render(area);
-  });
-}
-
-const shapes = [new Rectangle(), new Rectangle(), new Square()];
+const shapes = [new Rectangle(4, 5), new Rectangle(4, 5), new Square(5)];
 renderLargeShapes(shapes);
 ```
 **[⬆ 상단으로](#목차)**
@@ -1520,7 +1552,7 @@ Gang of four의 [*Design Patterns*](https://en.wikipedia.org/wiki/Design_Pattern
 "그럼 대체 상속을 언제 사용해야 되는 건가요?"라고 물어 볼 수 있습니다. 이건 당신이 직면한 문제 상황에 달려있지만
 조합보다 상속을 쓰는게 더 좋을 만한 예시를 몇 개 들어 보겠습니다.
 
-1. 당신의 상속관계가 "is-a" 관계가 아니라 "has-a" 관계일 때 (동물->사람 vs. 유저->유저정보)
+1. 당신의 상속관계가 "is-a" 관계가 아니라 "has-a" 관계일 때 (사람->동물 vs. 유저->유저정보)
 2. 기반 클래스의 코드를 다시 사용할 수 있을 때 (인간은 모든 동물처럼 움직일 수 있습니다.)
 3. 기반 클래스를 수정하여 파생된 클래스 모두를 수정하고 싶을 때 (이동시 모든 동물이 소비하는 칼로리를 변경하고 싶을 때)
 
@@ -1596,7 +1628,7 @@ describe('MakeMomentJSGreatAgain', () => {
 
     date = new MakeMomentJSGreatAgain('1/1/2015');
     date.addDays(30);
-    date.shouldEqual('1/31/2015');
+    assert.equal('1/31/2015', date);
 
     date = new MakeMomentJSGreatAgain('2/1/2016');
     date.addDays(28);
@@ -1617,7 +1649,7 @@ describe('MakeMomentJSGreatAgain', () => {
   it('handles 30-day months', () => {
     const date = new MakeMomentJSGreatAgain('1/1/2015');
     date.addDays(30);
-    date.shouldEqual('1/31/2015');
+    assert.equal('1/31/2015', date);
   });
 
   it('handles leap year', () => {
@@ -2027,3 +2059,16 @@ const actions = function() {
 };
 ```
 **[⬆ 상단으로](#목차)**
+
+## 번역(Translation)
+
+다른 언어로도 읽을 수 있습니다:
+
+  - ![br](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/Brazil.png) **Brazilian Portuguese**: [fesnt/clean-code-javascript](https://github.com/fesnt/clean-code-javascript)
+  - ![cn](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/China.png) **Chinese**: [alivebao/clean-code-js](https://github.com/alivebao/clean-code-js)
+  - ![de](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/Germany.png) **German**: [marcbruederlin/clean-code-javascript](https://github.com/marcbruederlin/clean-code-javascript)
+  - ![kr](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/South-Korea.png) **Korean**: [qkraudghgh/clean-code-javascript-ko](https://github.com/qkraudghgh/clean-code-javascript-ko)
+  - ![ru](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/Russia.png) **Russian**: [BoryaMogila/clean-code-javascript-ru/](https://github.com/BoryaMogila/clean-code-javascript-ru/)
+
+**[⬆ 상단으로](#목차)**
+
