@@ -4,18 +4,6 @@
 * 현재 원문의 [ac6a51d](https://github.com/ryanmcdermott/clean-code-javascript/commit/ac6a51d640064ec4ac6cada7af477df8967dd193)
 까지 반영되어 있습니다.
 
-## 읽기에 앞서
-오역 및 맞춤법 오타가 있을 수 있습니다. 또한 이해하기 힘든 부분은 의역했습니다.
-만약 수정이 필요한 내용이 있다면 [Issue](https://github.com/qkraudghgh/clean-code-javascript-ko/issues)나 
-[Pull Request](https://github.com/qkraudghgh/clean-code-javascript-ko/pulls)에 글을 남겨주세요.
-
-
-## LICENSE
-- 원문의 저작권은 `MIT LICENSE` 이며 [@ryanmcdermott](https://github.com/ryanmcdermott)에게 저작권이 있습니다.
-  - [원문](https://github.com/ryanmcdermott/clean-code-javascript)은 이 링크를 이용해주세요.
-- 번역본의 저작권은 `MIT LICENSE` 이며 [@qkraudghgh](https://github.com/qkraudghgh)에게 저작권이 있습니다.
-
-
 ## 목차
   1. [소개(Introduction)](#소개introduction)
   2. [변수(Variables)](#변수variables)
