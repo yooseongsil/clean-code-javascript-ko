@@ -1195,7 +1195,7 @@ class Employee {
 **[⬆ 상단으로](#목차)**
 
 ## **SOLID**
-### 단일 책임 원칙 (Single Responsibility Prinsiple, SRP)
+### 단일 책임 원칙 (Single Responsibility Principle, SRP)
 Clean Code에서 말하길 "클래스를 수정 할 때는 수정 해야하는 이유가 2개 이상 있으면 안됩니다".
 이것은 하나의 클래스에 많은 기능을 쑤셔넣는 것이나 다름 없습니다. 마치 비행기를 탈때 가방을 1개만 가지고 탈 수
 있을 때 처럼 말이죠. 이 문제는 당신의 클래스가 개념적으로 응집되어 있지 않다는 것이고, 클래스를 바꿔야할 많은 이유가 됩니다.
